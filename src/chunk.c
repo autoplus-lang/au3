@@ -8,6 +8,8 @@ void au3_initChunk(au3Chunk *chunk)
     chunk->capacity = 0;
     chunk->code = NULL;
     chunk->lines = NULL;
+
+    au3_initValueArray(&chunk->constants);
 }
 
 void au3_freeChunk(au3Chunk *chunk)
@@ -15,6 +17,7 @@ void au3_freeChunk(au3Chunk *chunk)
     free(chunk->code);
     free(chunk->lines);
 
+    au3_freeValueArray(&chunk->constants);
     au3_initChunk(chunk);
 }
 
@@ -29,4 +32,11 @@ void au3_writeChunk(au3Chunk *chunk, uint8_t byte, int line)
     chunk->code[chunk->count] = byte;
     chunk->code[chunk->count] = line;
     chunk->count++;
+}
+
+int au3_addConstant(au3Chunk *chunk, au3Value value)
+{
+    au3_writeValueArray(&chunk->constants, value);
+
+    return chunk->constants.count - 1;
 }
