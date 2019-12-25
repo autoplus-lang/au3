@@ -4,6 +4,10 @@
 
 #include "common.h"
 
+typedef enum {
+    OP_RET,
+} au3Opcode;
+
 typedef struct {
     int count;
     int capacity;
