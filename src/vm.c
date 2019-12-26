@@ -197,6 +197,16 @@ static void closeUpvalues(au3VM *vm, au3Value *last)
     }
 }
 
+static bool objectUnop(au3Object *object, au3Value *result)
+{
+
+}
+
+static bool objectBinop(au3Object *object, au3Value value, au3Value *result)
+{
+
+}
+
 static au3Status execute(au3VM *vm)
 {
     register uint8_t *ip;
@@ -229,67 +239,83 @@ static au3Status execute(au3VM *vm)
 #define NEXT            continue
 
 #define BINARY_OP(op) \
-    do { \
         switch (AU3_COMBINE(PEEK(vm, 1).type, PEEK(vm, 0).type)) { \
             case AU3_TINT_INT: { \
                 int64_t b = AU3_AS_INTEGER(POP(vm)); \
                 int64_t a = AU3_AS_INTEGER(POP(vm)); \
                 PUSH(vm, AU3_INTEGER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TNUM_NUM: { \
                 double b = AU3_AS_NUMBER(POP(vm)); \
                 double a = AU3_AS_NUMBER(POP(vm)); \
                 PUSH(vm, AU3_NUMBER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TINT_NUM: { \
                 double b = AU3_AS_NUMBER(POP(vm)); \
                 int64_t a = AU3_AS_INTEGER(POP(vm)); \
                 PUSH(vm, AU3_NUMBER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TNUM_INT: { \
                 int64_t b = AU3_AS_INTEGER(POP(vm)); \
                 double a = AU3_AS_NUMBER(POP(vm)); \
                 PUSH(vm, AU3_NUMBER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TBOOL_BOOL: { \
                 char b = AU3_AS_BOOL(POP(vm)); \
                 char a = AU3_AS_BOOL(POP(vm)); \
                 PUSH(vm, AU3_INTEGER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TBOOL_INT: { \
                 int64_t b = AU3_AS_INTEGER(POP(vm)); \
                 char a = AU3_AS_BOOL(POP(vm)); \
                 PUSH(vm, AU3_INTEGER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TINT_BOOL: { \
                 char b = AU3_AS_BOOL(POP(vm)); \
                 int64_t a = AU3_AS_INTEGER(POP(vm)); \
                 PUSH(vm, AU3_INTEGER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TBOOL_NUM: { \
                 double b = AU3_AS_NUMBER(POP(vm)); \
                 char a = AU3_AS_BOOL(POP(vm)); \
                 PUSH(vm, AU3_NUMBER(a op b)); \
-                break; \
+                NEXT; \
             } \
             case AU3_TNUM_BOOL: { \
                 char b = AU3_AS_BOOL(POP(vm)); \
                 double a = AU3_AS_NUMBER(POP(vm)); \
                 PUSH(vm, AU3_NUMBER(a op b)); \
+                NEXT; \
+            } \
+            case AU3_TOBJ_BOOL: \
+            case AU3_TOBJ_INT: \
+            case AU3_TOBJ_NUM: { \
+                au3Value result; \
+                if (objectBinop(AU3_AS_OBJECT(PEEK(vm, 1)), PEEK(vm, 0), &result)) { \
+                    POP(vm); POP(vm); PUSH(vm, result); \
+                    NEXT; \
+                } \
                 break; \
             } \
-            default: {\
-                ERROR("Cannot perform '%s', got <%s> and <%s>.", #op, TYPEOF(PEEK(vm, 1)), TYPEOF(PEEK(vm, 0))); \
+            case AU3_TBOOL_OBJ: \
+            case AU3_TINT_OBJ: \
+            case AU3_TNUM_OBJ: \
+            case AU3_TOBJ_OBJ: { \
+                au3Value result; \
+                if (objectBinop(AU3_AS_OBJECT(PEEK(vm, 0)), PEEK(vm, 1), &result)) { \
+                    POP(vm); POP(vm); PUSH(vm, result); \
+                    NEXT; \
+                } \
+                break; \
             } \
-        } \
-    } while (false)
+        } ERROR("Cannot perform '%s', got <%s> and <%s>.", #op, TYPEOF(PEEK(vm, 1)), TYPEOF(PEEK(vm, 0))); \
 
     LOAD_FRAME();
 
@@ -346,22 +372,11 @@ static au3Status execute(au3VM *vm)
             PUSH(vm, AU3_INTEGER(-AU3_AS_INTEGER(POP(vm))));
             NEXT;
         }
-        CASE_CODE(ADD) {
-            BINARY_OP( + );
-            NEXT;
-        }
-        CASE_CODE(SUB) {
-            BINARY_OP( - );
-            NEXT;
-        }
-        CASE_CODE(MUL) {
-            BINARY_OP( * );
-            NEXT;
-        }
-        CASE_CODE(DIV) {
-            BINARY_OP( / );
-            NEXT;
-        }
+
+        CASE_CODE(ADD) BINARY_OP(+); NEXT;
+        CASE_CODE(SUB) BINARY_OP(-); NEXT;
+        CASE_CODE(MUL) BINARY_OP(*); NEXT;
+        CASE_CODE(DIV) BINARY_OP(/); NEXT;
 
         CASE_CODE(NOT) {
             PUSH(vm, AU3_BOOL(AU3_IS_FALSEY(POP(vm))));
