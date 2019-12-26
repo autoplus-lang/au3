@@ -315,7 +315,7 @@ static void expressionStatement()
     emitByte(OP_POP);
 }
 
-static void printStatement()
+static void putsStatement()
 {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
@@ -323,15 +323,44 @@ static void printStatement()
     emitByte(OP_PUTS);
 }
 
+static void synchronize()
+{
+    parser.panicMode = false;
+
+    while (parser.current.type != TOKEN_EOF) {
+        if (parser.previous.type == TOKEN_SEMICOLON) return;
+
+        switch (parser.current.type) {
+            case TOKEN_CLASS:
+            case TOKEN_FUN:
+            case TOKEN_VAR:
+            case TOKEN_FOR:
+            case TOKEN_IF:
+            case TOKEN_WHILE:
+            case TOKEN_PUTS:
+            case TOKEN_RETURN:
+                return;
+
+            default:
+                // Do nothing.                                  
+                ;
+        }
+
+        advance();
+    }
+}
+
 static void declaration()
 {
     statement();
+
+    if (parser.panicMode) synchronize();
 }
 
 static void statement()
 {
     if (match(TOKEN_PUTS)) {
-        printStatement();
+        putsStatement();
     }
     else {
         expressionStatement();
