@@ -14,6 +14,7 @@ static au3VM *g_pVM = NULL;
 static void resetStack(au3VM *vm)
 {
     vm->top = vm->stack;
+    vm->frameCount = 0;
 }
 
 static void runtimeError(au3VM *vm, const char *format, ...)
@@ -24,9 +25,11 @@ static void runtimeError(au3VM *vm, const char *format, ...)
     va_end(args);
     fputs("\n", stderr);
 
-    size_t instruction = vm->ip - vm->chunk->code;
-    int line = vm->chunk->lines[instruction];
-    fprintf(stderr, "[line %d] in script\n", line);
+    au3CallFrame* frame = &vm->frames[vm->frameCount - 1];
+    size_t instruction = frame->ip - frame->function->chunk.code;
+    int line = frame->function->chunk.lines[instruction];
+    int column = frame->function->chunk.columns[instruction];
+    fprintf(stderr, "[%d:%d] in script\n", line, column);
 
     resetStack(vm);
 }
@@ -87,10 +90,13 @@ static void concatenate(au3VM *vm)
 
 static au3Status execute(au3VM *vm)
 {
-#define READ_BYTE()     (*vm->ip++)
-#define READ_SHORT()    (vm->ip += 2, (uint16_t)((vm->ip[-2] << 8) | vm->ip[-1]))
-#define READ_LAST()     (vm->ip[-1])
-#define READ_CONST()    (vm->chunk->constants.values[READ_BYTE()])
+    au3CallFrame *frame = &vm->frames[vm->frameCount - 1];
+
+#define READ_BYTE()     (*frame->ip++)
+#define READ_SHORT()    (frame->ip += 2, (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
+#define READ_LAST()     (frame->ip[-1])
+
+#define READ_CONST()    (frame->function->chunk.constants.values[READ_BYTE()])
 #define READ_STRING()   AU3_AS_STRING(READ_CONST())
 
 #define BINARY_OP(valueType, op) \
@@ -230,28 +236,28 @@ static au3Status execute(au3VM *vm)
 
         CASE_CODE(LD) {
             uint8_t slot = READ_BYTE();
-            PUSH(vm, vm->stack[slot]);
+            PUSH(vm, frame->slots[slot]);
             NEXT;
         }
         CASE_CODE(ST) {
             uint8_t slot = READ_BYTE();
-            vm->stack[slot] = PEEK(vm, 0);
+            frame->slots[slot] = PEEK(vm, 0);
             NEXT;
         }
 
         CASE_CODE(JMP) {
             uint16_t offset = READ_SHORT();
-            vm->ip += offset;
+            frame->ip += offset;
             NEXT;
         }
         CASE_CODE(JMPF) {
             uint16_t offset = READ_SHORT();
-            if (AU3_IS_FALSEY(PEEK(vm, 0))) vm->ip += offset;
+            if (AU3_IS_FALSEY(PEEK(vm, 0))) frame->ip += offset;
             NEXT;
         }
         CASE_CODE(LOOP) {
             uint16_t offset = READ_SHORT();
-            vm->ip -= offset;
+            frame->ip -= offset;
             NEXT;
         }
 
@@ -266,18 +272,14 @@ static au3Status execute(au3VM *vm)
 
 au3Status au3_interpret(au3VM *vm, const char *source)
 {
-    au3Chunk chunk;
-    au3_initChunk(&chunk);
+    au3Function *function = au3_compile(vm, source);
+    if (function == NULL) return AU3_COMPILE_ERROR;
 
-    if (!au3_compile(vm, source, &chunk)) {
-        au3_freeChunk(&chunk);
-        return AU3_COMPILE_ERROR;
-    }
+    PUSH(vm, AU3_OBJECT(function));
+    au3CallFrame *frame = &vm->frames[vm->frameCount++];
+    frame->function = function;
+    frame->ip = function->chunk.code;
+    frame->slots = vm->stack;
 
-    vm->chunk = &chunk;
-    vm->ip = vm->chunk->code;
-    au3Status result = execute(vm);
-
-    au3_freeChunk(&chunk);
-    return result;
+   return execute(vm);
 }

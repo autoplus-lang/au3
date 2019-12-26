@@ -676,7 +676,7 @@ static void statement()
     }
 }
 
-au3Function *au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
+au3Function *au3_compile(au3VM *vm, const char *source)
 {
     au3_initLexer(source);
     Compiler compiler;
