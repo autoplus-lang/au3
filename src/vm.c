@@ -5,6 +5,7 @@
 
 #include "vm.h"
 #include "compiler.h"
+#include "object.h"
 
 static void resetStack(au3VM *vm)
 {
@@ -49,6 +50,21 @@ void au3_close(au3VM *vm)
 #define POP(vm)         *(--(vm)->top)
 #define PEEK(vm, i)     ((vm)->top[-1 - (i)])
 
+static void concatenate(au3VM *vm)
+{
+    au3String *b = AU3_AS_STRING(POP(vm));
+    au3String *a = AU3_AS_STRING(POP(vm));
+
+    int length = a->length + b->length;
+    char *chars = malloc(sizeof(char) * (length + 1));
+    memcpy(chars, a->chars, a->length);
+    memcpy(chars + a->length, b->chars, b->length);
+    chars[length] = '\0';
+
+    au3String *result = au3_takeString(chars, length);
+    PUSH(vm, AU3_OBJECT(result));
+}
+
 static au3Status execute(au3VM *vm)
 {
 #define READ_BYTE()     (*vm->ip++)
@@ -87,7 +103,18 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
         CASE_CODE(ADD) {
-            BINARY_OP(AU3_NUMBER, + );
+            if (AU3_IS_STRING(PEEK(vm, 0)) && AU3_IS_STRING(PEEK(vm, 1))) {
+                concatenate(vm);
+            }
+            else if (AU3_IS_NUMBER(PEEK(vm, 0)) && AU3_IS_NUMBER(PEEK(vm, 1))) {
+                double b = AU3_AS_NUMBER(POP(vm));
+                double a = AU3_AS_NUMBER(POP(vm));
+                PUSH(vm, AU3_NUMBER(a + b));
+            }
+            else {
+                runtimeError(vm, "Operands must be two numbers or two strings.");
+                return AU3_RUNTIME_ERROR;
+            }
             NEXT;
         }
         CASE_CODE(SUB) {
