@@ -157,7 +157,13 @@ static au3TokenType identifierType()
     switch (lexer.start[0]) {
         case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);
         case 'c': return checkKeyword(1, 4, "lass", TOKEN_CLASS);
-        case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
+        case 'e': 
+            if (lexer.current - lexer.start > 1)
+                switch (lexer.start[1]) {
+                    case 'l': return checkKeyword(2, 2, "se", TOKEN_ELSE);
+                    case 'n': return checkKeyword(2, 1, "d", TOKEN_END);
+                }
+            break;
         case 'f':
             if (lexer.current - lexer.start > 1)
                 switch (lexer.start[1]) {
