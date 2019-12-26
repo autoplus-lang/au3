@@ -36,7 +36,19 @@ typedef struct {
     Precedence precedence;
 } ParseRule;
 
+typedef struct {
+    au3Token name;
+    int depth;
+} Local;
+
+typedef struct Compiler {
+    Local locals[AU3_MAX_LOCALS];
+    int localCount;
+    int scopeDepth;
+} Compiler;
+
 static Parser parser;
+static Compiler *current = NULL;
 static au3Chunk *compilingChunk;
 static au3VM *runningVM;
 
@@ -143,6 +155,13 @@ static void emitConstant(au3Value value)
     emitBytes(OP_CONST, makeConstant(value));
 }
 
+static void initCompiler(Compiler *compiler)
+{
+    compiler->localCount = 0;
+    compiler->scopeDepth = 0;
+    current = compiler;
+}
+
 static void endCompiler()
 {
     emitReturn();
@@ -151,6 +170,16 @@ static void endCompiler()
         au3_disassembleChunk(currentChunk(), "code");
         printf("==========\n\n");
     }
+}
+
+static void beginScope()
+{
+    current->scopeDepth++;
+}
+
+static void endScope()
+{
+    current->scopeDepth--;
 }
 
 static void expression();
@@ -347,6 +376,15 @@ static void expression()
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void block()
+{
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
+        declaration();
+    }
+
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+}
+
 static void varDeclaration()
 {
     uint8_t global = parseVariable("Expect variable name.");
@@ -422,6 +460,11 @@ static void statement()
     if (match(TOKEN_PUTS)) {
         putsStatement();
     }
+    else if (match(TOKEN_LEFT_BRACE)) {
+        beginScope();
+        block();
+        endScope();
+    }
     else {
         expressionStatement();
     }
@@ -430,6 +473,9 @@ static void statement()
 bool au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
 {
     au3_initLexer(source);
+    Compiler compiler;
+    initCompiler(&compiler);
+
     compilingChunk = chunk;
     runningVM = vm;
 
