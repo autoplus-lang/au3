@@ -30,9 +30,12 @@ static void runtimeError(au3VM *vm, const char *format, ...)
         au3Function *function = frame->function;
         // -1 because the IP is sitting on the next instruction to be
         // executed.                                                 
-        size_t instruction = frame->ip - function->chunk.code - 1;
-        fprintf(stderr, "[%d:%d] in ",
-            function->chunk.lines[instruction], function->chunk.columns[instruction]);
+        size_t instruction = (size_t)frame->ip - (size_t)function->chunk.code - 1;
+        int line = function->chunk.lines[instruction];
+        int column = function->chunk.columns[instruction];
+
+        fprintf(stderr, "[%d:%d] in ", line, column);
+
         if (function->name == NULL) {
             fprintf(stderr, "script\n");
         }
@@ -148,6 +151,13 @@ static au3Status execute(au3VM *vm)
 	frame = &vm->frames[vm->frameCount - 1]; \
 	ip = frame->ip
 
+#define ERROR(fmt, ...) \
+    do { \
+        STORE_FRAME(); \
+        runtimeError(vm, fmt, ##__VA_ARGS__); \
+        return AU3_RUNTIME_ERROR; \
+    } while (false)
+
 #define READ_BYTE()     (*ip++)
 #define READ_SHORT()    (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
 #define READ_LAST()     (ip[-1])
@@ -158,8 +168,7 @@ static au3Status execute(au3VM *vm)
 #define BINARY_OP(valueType, op) \
     do { \
         if (!AU3_IS_NUMBER(PEEK(vm, 0)) || !AU3_IS_NUMBER(PEEK(vm, 1))) { \
-            runtimeError(vm, "Operands must be numbers."); \
-            return AU3_RUNTIME_ERROR; \
+            ERROR("Operands must be numbers."); \
         } \
         double b = AU3_AS_NUMBER(POP(vm)); \
         double a = AU3_AS_NUMBER(POP(vm)); \
@@ -215,8 +224,7 @@ static au3Status execute(au3VM *vm)
 
         CASE_CODE(NEG) {
             if (!AU3_IS_NUMBER(PEEK(vm, 0))) {
-                runtimeError(vm, "Operand must be a number.");
-                return AU3_RUNTIME_ERROR;
+                ERROR("Operand must be a number.");
             }
 
             PUSH(vm, AU3_NUMBER(-AU3_AS_NUMBER(POP(vm))));
@@ -232,8 +240,7 @@ static au3Status execute(au3VM *vm)
                 PUSH(vm, AU3_NUMBER(a + b));
             }
             else {
-                runtimeError(vm, "Operands must be two numbers or two strings.");
-                return AU3_RUNTIME_ERROR;
+                ERROR("Operands must be two numbers or two strings.");
             }
             NEXT;
         }
@@ -297,7 +304,7 @@ static au3Status execute(au3VM *vm)
             au3String *name = READ_STRING();
             au3Value value;
             if (!au3_tableGet(&vm->globals, name, &value)) {
-                runtimeError(vm, "Undefined variable '%s'.", name->chars);
+                ERROR("Undefined variable '%s'.", name->chars);
                 return AU3_RUNTIME_ERROR;
             }
             PUSH(vm, value);
@@ -307,7 +314,7 @@ static au3Status execute(au3VM *vm)
             au3String *name = READ_STRING();
             if (au3_tableSet(&vm->globals, name, PEEK(vm, 0))) {
                 au3_tableDelete(&vm->globals, name);
-                runtimeError(vm, "Undefined variable '%s'.", name->chars);
+                ERROR("Undefined variable '%s'.", name->chars);
                 return AU3_RUNTIME_ERROR;
             }
             NEXT;
@@ -341,8 +348,7 @@ static au3Status execute(au3VM *vm)
         }
 
         CASE_ERROR() {
-            runtimeError(vm, "Bad opcode, got %d!", READ_LAST());
-            return AU3_RUNTIME_ERROR;
+            ERROR("Bad opcode, got %d!", READ_LAST());
         }
     }
 
