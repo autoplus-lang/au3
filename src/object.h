@@ -21,6 +21,7 @@ struct _au3String {
 struct _au3Function {
     au3Object object;
     int arity;
+    int upvalueCount;
     au3Chunk chunk;
     au3String *name;
 };

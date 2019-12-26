@@ -76,6 +76,7 @@ au3Function *au3_newFunction(au3VM *vm)
     au3Function *function = ALLOCATE_OBJ(au3Function, AU3_TFUNCTION);
 
     function->arity = 0;
+    function->upvalueCount = 0;
     function->name = NULL;
     au3_initChunk(&function->chunk);
 

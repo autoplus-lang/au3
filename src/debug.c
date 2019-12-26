@@ -2,6 +2,7 @@
 
 #include "debug.h"
 #include "value.h"
+#include "object.h"
 
 void au3_disassembleChunk(au3Chunk *chunk, const char* name)
 {
@@ -114,8 +115,20 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
             au3_printValue(chunk->constants.values[constant]);
             printf("\n");
 
+            au3Function *function = AU3_AS_FUNCTION(chunk->constants.values[constant]);
+            for (int j = 0; j < function->upvalueCount; j++) {
+                int isLocal = chunk->code[offset++];
+                int index = chunk->code[offset++];
+                printf("%04d      |                     %s %d\n",
+                    offset - 2, isLocal ? "local" : "upvalue", index);
+            }
+
             return offset;
         }
+        case OP_ULD:
+            return byteInstruction("OP_ULD", chunk, offset);
+        case OP_UST:
+            return byteInstruction("OP_UST", chunk, offset);
 
         case OP_JMP:
             return jumpInstruction("OP_JMP", 1, chunk, offset);
