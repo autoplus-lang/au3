@@ -3,6 +3,7 @@
 #pragma once
 
 #include "chunk.h"
+#include "table.h"
 
 typedef struct {
     uint8_t *ip;
@@ -11,6 +12,7 @@ typedef struct {
     au3Value *top;
     au3Value stack[256];
 
+    au3Table strings;
     au3Object *objects;
 
 } au3VM;

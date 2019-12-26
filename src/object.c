@@ -26,6 +26,8 @@ static au3String *allocateString(au3VM *vm, char *chars, int length, uint32_t ha
     string->chars = chars;
     string->hash = hash;
 
+    au3_tableSet(&vm->strings, string, AU3_NULL);
+
     return string;
 }
 
@@ -47,12 +49,20 @@ static uint32_t hashString(const char* key, int length)
 au3String *au3_takeString(au3VM *vm, char *chars, int length)
 {
     uint32_t hash = hashString(chars, length);
+    au3String *interned = au3_tableFindString(&vm->strings, chars, length, hash);
+    if (interned != NULL) {
+        free(chars);
+        return interned;
+    }
+
     return allocateString(vm, chars, length, hash);
 }
 
 au3String *au3_copyString(au3VM *vm, const char *chars, int length)
 {
     uint32_t hash = hashString(chars, length);
+    au3String *interned = au3_tableFindString(&vm->strings, chars, length, hash);
+    if (interned != NULL) return interned;
 
     char *heapChars = malloc(sizeof(char) * (length + 1));
     memcpy(heapChars, chars, length);

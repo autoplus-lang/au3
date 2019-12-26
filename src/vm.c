@@ -34,6 +34,7 @@ au3VM *au3_create()
 
     if (vm != NULL) {
         vm->objects = NULL;
+        au3_initTable(&vm->strings);
         resetStack(vm);
     }
 
@@ -43,6 +44,7 @@ au3VM *au3_create()
 void au3_close(au3VM *vm)
 {
     if (vm != NULL) {
+        au3_freeTable(&vm->strings);
         au3_freeObjects(vm);
         free(vm);
     }
