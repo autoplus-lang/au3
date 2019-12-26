@@ -54,4 +54,7 @@ void au3_initValueArray(au3ValueArray *array);
 void au3_writeValueArray(au3ValueArray *array, au3Value value);
 void au3_freeValueArray(au3ValueArray *array);
 
+const char *au3_typeofValue(au3Value value);
+void au3_printValue(au3Value value);
+
 #endif
