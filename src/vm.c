@@ -34,6 +34,7 @@ au3VM *au3_create()
 
     if (vm != NULL) {
         vm->objects = NULL;
+        au3_initTable(&vm->globals);
         au3_initTable(&vm->strings);
         resetStack(vm);
     }
@@ -44,6 +45,7 @@ au3VM *au3_create()
 void au3_close(au3VM *vm)
 {
     if (vm != NULL) {
+        au3_freeTable(&vm->globals);
         au3_freeTable(&vm->strings);
         au3_freeObjects(vm);
         free(vm);
@@ -74,6 +76,7 @@ static au3Status execute(au3VM *vm)
 #define READ_BYTE()     (*vm->ip++)
 #define READ_LAST()     (vm->ip[-1])
 #define READ_CONST()    (vm->chunk->constants.values[READ_BYTE()])
+#define READ_STRING()   AU3_AS_STRING(READ_CONST())
 
 #define BINARY_OP(valueType, op) \
     do { \
@@ -183,6 +186,14 @@ static au3Status execute(au3VM *vm)
             PUSH(vm, value);
             NEXT;
         }
+
+        CASE_CODE(DEF) {
+            au3String *name = READ_STRING();
+            au3_tableSet(&vm->globals, name, PEEK(vm, 0));
+            POP(vm);
+            break;
+        }
+
         CASE_ERROR() {
             runtimeError(vm, "Bad opcode, got %d!", READ_LAST());
             return AU3_RUNTIME_ERROR;

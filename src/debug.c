@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "debug.h"
+#include "value.h"
 
 void au3_disassembleChunk(au3Chunk *chunk, const char* name)
 {
@@ -9,6 +10,16 @@ void au3_disassembleChunk(au3Chunk *chunk, const char* name)
     for (int offset = 0; offset < chunk->count;) {
         offset = au3_disassembleInstruction(chunk, offset);
     }
+}
+
+static int constantInstruction(const char *name, au3Chunk *chunk, int offset)
+{
+    uint8_t constant = chunk->code[offset + 1];
+    printf("%-16s %4d '", name, constant);
+    au3_printValue(chunk->constants.values[constant]);
+    printf("'\n");
+
+    return offset + 2;
 }
 
 static int simpleInstruction(const char* name, int offset)
@@ -55,6 +66,9 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
             return simpleInstruction("OP_LT", offset);
         case OP_LE:
             return simpleInstruction("OP_LE", offset);
+
+        case OP_DEF:
+            return constantInstruction("OP_DEF", chunk, offset);
 
         default:
             printf("Unknown opcode %d\n", instruction);

@@ -13,6 +13,7 @@ typedef struct {
     au3Value stack[256];
 
     au3Table strings;
+    au3Table globals;
     au3Object *objects;
 
 } au3VM;

@@ -40,6 +40,8 @@ typedef enum {
     OP_SHL,
     OP_SHR,
 
+    OP_DEF,
+
 } au3Opcode;
 
 typedef struct {

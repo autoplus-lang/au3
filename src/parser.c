@@ -158,6 +158,22 @@ static void declaration();
 static ParseRule *getRule(au3TokenType type);
 static void parsePrecedence(Precedence precedence);
 
+static uint8_t identifierConstant(au3Token* name)
+{
+    return makeConstant(AU3_OBJECT(au3_copyString(runningVM, name->start, name->length)));
+}
+
+static uint8_t parseVariable(const char *errorMessage)
+{
+    consume(TOKEN_IDENTIFIER, errorMessage);
+    return identifierConstant(&parser.previous);
+}
+
+static void defineVariable(uint8_t global)
+{
+    emitBytes(OP_DEF, global);
+}
+
 static void binary()
 {
     // Remember the operator.                                
@@ -307,6 +323,21 @@ static void expression()
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void varDeclaration()
+{
+    uint8_t global = parseVariable("Expect variable name.");
+
+    if (match(TOKEN_EQUAL)) {
+        expression();
+    }
+    else {
+        emitByte(OP_NULL);
+    }
+    consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+
+    defineVariable(global);
+}
+
 static void expressionStatement()
 {
     expression();
@@ -352,7 +383,12 @@ static void synchronize()
 
 static void declaration()
 {
-    statement();
+    if (match(TOKEN_VAR)) {
+        varDeclaration();
+    }
+    else {
+        statement();
+    }
 
     if (parser.panicMode) synchronize();
 }
