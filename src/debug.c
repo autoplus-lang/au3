@@ -101,6 +101,8 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
             return jumpInstruction("OP_JMP", 1, chunk, offset);
         case OP_JMPF:
             return jumpInstruction("OP_JMPF", 1, chunk, offset);
+        case OP_LOOP:
+            return jumpInstruction("OP_LOOP", -1, chunk, offset);
 
         default:
             printf("Unknown opcode %d\n", instruction);

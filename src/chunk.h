@@ -49,6 +49,7 @@ typedef enum {
 
     OP_JMP,
     OP_JMPF,
+    OP_LOOP,
 
 } au3Opcode;
 

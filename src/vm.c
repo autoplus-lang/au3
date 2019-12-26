@@ -249,6 +249,11 @@ static au3Status execute(au3VM *vm)
             if (AU3_IS_FALSEY(PEEK(vm, 0))) vm->ip += offset;
             NEXT;
         }
+        CASE_CODE(LOOP) {
+            uint16_t offset = READ_SHORT();
+            vm->ip -= offset;
+            NEXT;
+        }
 
         CASE_ERROR() {
             runtimeError(vm, "Bad opcode, got %d!", READ_LAST());
