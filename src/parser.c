@@ -658,9 +658,11 @@ static void expressionStatement()
 
 static void ifStatement()
 {
-    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+    bool hadParen = match(TOKEN_LEFT_PAREN);
     expression();
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+    if (hadParen) consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+    consume(TOKEN_THEN, "Expect 'then' after condition.");
 
     int thenJump = emitJump(OP_JMPF);
     emitByte(OP_POP);
