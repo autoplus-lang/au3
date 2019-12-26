@@ -4,7 +4,6 @@
 
 #include "common.h"
 #include "chunk.h"
-#include "vm.h"
 
 typedef enum {
     // Single-character tokens.                         
