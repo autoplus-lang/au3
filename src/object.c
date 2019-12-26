@@ -82,11 +82,21 @@ au3Function *au3_newFunction(au3VM *vm)
     return function;
 }
 
+au3Native *au3_newNative(au3VM *vm, au3NativeFn function, const char *tips)
+{
+    au3Native *native = ALLOCATE_OBJ(au3Native, AU3_TNATIVE);
+    native->function = function;
+    native->tips = tips != NULL ? strdup(tips) : tips;
+
+    return native;
+}
+
 #define OBJECT_TYPE(o)  ((o)->type)
 
 #define AS_STRING(o)    ((au3String *)(o))
 #define AS_CSTRING(o)   (((au3String *)(o))->chars)
 #define AS_FUNCTION(o)  ((au3Function *)(o))
+#define AS_NATIVE(o)    ((au3Native *)(o))
 
 static void printFunction(au3Function *function)
 {
@@ -97,6 +107,12 @@ static void printFunction(au3Function *function)
     printf("func: <%s>", function->name->chars);
 }
 
+static void prinNative(au3Native *native)
+{
+    printf("func: <native>");
+    if (native->tips) printf("(%s)", native->tips);
+}
+
 void au3_printObject(au3Object *object)
 {
     switch (OBJECT_TYPE(object)) {
@@ -105,6 +121,9 @@ void au3_printObject(au3Object *object)
             break;
         case AU3_TFUNCTION:
             printFunction(AS_FUNCTION(object));
+            break;
+        case AU3_TNATIVE:
+            prinNative(AS_NATIVE(object));
             break;
         default:
             printf("object: %p", object);

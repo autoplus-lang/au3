@@ -29,6 +29,12 @@ static void freeObject(au3Object *object)
             AU3_FREE(au3Function, object);
             break;
         }
+        case AU3_TNATIVE: {
+            au3Native *native = (au3Native *)object;
+            if (native->tips) free(native->tips);
+            AU3_FREE(au3Native, object);
+            break;
+        }
     }
 }
 

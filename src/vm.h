@@ -11,7 +11,7 @@ typedef struct {
     au3Value *slots;
 } au3CallFrame;
 
-typedef struct {
+typedef struct _au3VM {
 
     au3CallFrame frames[AU3_MAX_FRAMES];
     int frameCount;

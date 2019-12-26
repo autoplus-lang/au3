@@ -7,6 +7,7 @@
 typedef struct _au3Object au3Object;
 typedef struct _au3String au3String;
 typedef struct _au3Function au3Function;
+typedef struct _au3Native au3Native;
 
 typedef enum {
     AU3_TNULL,
@@ -19,6 +20,7 @@ typedef enum {
 typedef enum {
     AU3_TSTRING = AU3_TOBJECT,
     AU3_TFUNCTION,
+    AU3_TNATIVE,
 } au3ObjectType;
 
 typedef struct {
@@ -32,6 +34,9 @@ typedef struct {
         uint64_t raw;
     };
 } au3Value;
+
+typedef struct _au3VM   au3VM;
+typedef int (* au3NativeFn)(au3VM *vm, int argc, au3Value *args);
 
 #define AU3_NULL            ((au3Value){ AU3_TNULL })
 #define AU3_TRUE            ((au3Value){ AU3_TBOOL, .boolean = true })
