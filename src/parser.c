@@ -231,6 +231,17 @@ static void string()
         parser.previous.length - 2)));
 }
 
+static void namedVariable(au3Token name)
+{
+    uint8_t arg = identifierConstant(&name);
+    emitBytes(OP_GLD, arg);
+}
+
+static void variable()
+{
+    namedVariable(parser.previous);
+}
+
 static void unary()
 {
     au3TokenType operatorType = parser.previous.type;
@@ -270,7 +281,7 @@ static ParseRule rules[] = {
     [TOKEN_LESS]            = { NULL,     binary,  PREC_COMPARISON },
     [TOKEN_LESS_EQUAL]      = { NULL,     binary,  PREC_COMPARISON },
 
-    [TOKEN_IDENTIFIER]      = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_IDENTIFIER]      = { variable, NULL,    PREC_NONE },
     [TOKEN_STRING]          = { string,   NULL,    PREC_NONE },
     [TOKEN_NUMBER]          = { number,   NULL,    PREC_NONE },
 

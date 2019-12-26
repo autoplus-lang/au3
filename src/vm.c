@@ -193,6 +193,16 @@ static au3Status execute(au3VM *vm)
             POP(vm);
             break;
         }
+        CASE_CODE(GLD) {
+            au3String *name = READ_STRING();
+            au3Value value;
+            if (!au3_tableGet(&vm->globals, name, &value)) {
+                runtimeError(vm, "Undefined variable '%s'.", name->chars);
+                return AU3_RUNTIME_ERROR;
+            }
+            PUSH(vm, value);
+            break;
+        }
 
         CASE_ERROR() {
             runtimeError(vm, "Bad opcode, got %d!", READ_LAST());
