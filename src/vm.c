@@ -98,8 +98,8 @@ void au3_close(au3VM *vm)
 
 static void concatenate(au3VM *vm)
 {
-    au3String *b = AU3_AS_STRING(POP(vm));
-    au3String *a = AU3_AS_STRING(POP(vm));
+    au3String *b = AU3_AS_STRING(PEEK(vm, 0));
+    au3String *a = AU3_AS_STRING(PEEK(vm, 1));
 
     int length = a->length + b->length;
     char *chars = malloc(sizeof(char) * (length + 1));
@@ -108,6 +108,9 @@ static void concatenate(au3VM *vm)
     chars[length] = '\0';
 
     au3String *result = au3_takeString(vm, chars, length);
+
+    POP(vm);
+    POP(vm);
     PUSH(vm, AU3_OBJECT(result));
 }
 
@@ -482,4 +485,14 @@ au3Value au3_getGlobal(au3VM *vm, const char *name)
     POP(vm);
 
     return value;
+}
+
+void au3_push(au3VM *vm, au3Value value)
+{
+    PUSH(vm, value);
+}
+
+au3Value au3_pop(au3VM *vm)
+{
+    return POP(vm);
 }

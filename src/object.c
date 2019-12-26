@@ -27,7 +27,9 @@ static au3String *allocateString(au3VM *vm, char *chars, int length, uint32_t ha
     string->chars = chars;
     string->hash = hash;
 
+    au3_push(vm, AU3_OBJECT(string));
     au3_tableSet(&vm->strings, string, AU3_NULL);
+    au3_pop(vm);
 
     return string;
 }

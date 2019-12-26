@@ -47,4 +47,7 @@ void au3_setGlobal(au3VM *vm, const char *name, au3Value value);
 au3Value au3_getGlobal(au3VM *vm, const char *name);
 void au3_defineNative(au3VM *vm, const char *name, au3NativeFn function, const char *tips);
 
+void au3_push(au3VM *vm, au3Value value);
+au3Value au3_pop(au3VM *vm);
+
 #endif
