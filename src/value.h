@@ -28,6 +28,9 @@ typedef struct {
 } au3Value;
 
 #define AU3_NULL            ((au3Value){ AU3_TNULL })
+#define AU3_TRUE            ((au3Value){ AU3_TBOOL, .boolean = true })
+#define AU3_FALSE           ((au3Value){ AU3_TBOOL, .boolean = false })
+
 #define AU3_BOOL(b)         ((au3Value){ AU3_TBOOL, .boolean = (b) })
 #define AU3_INTEGER(i)      ((au3Value){ AU3_TINTEGER, .integer = (i) })
 #define AU3_NUMBER(n)       ((au3Value){ AU3_TNUMBER, .number = (n) })

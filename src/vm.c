@@ -101,6 +101,18 @@ static au3Status execute(au3VM *vm)
             BINARY_OP(AU3_NUMBER, /);
             NEXT;
         }
+        CASE_CODE(NULL) {
+            PUSH(vm, AU3_NULL);
+            NEXT;
+        }
+        CASE_CODE(TRUE) {
+            PUSH(vm, AU3_TRUE);
+            NEXT;
+        }
+        CASE_CODE(FALSE) {
+            PUSH(vm, AU3_FALSE);
+            NEXT;
+        }
         CASE_CODE(CONST) {
             au3Value value = READ_CONST();
             PUSH(vm, value);
