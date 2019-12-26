@@ -180,6 +180,12 @@ static void beginScope()
 static void endScope()
 {
     current->scopeDepth--;
+
+    while (current->localCount > 0 &&
+        current->locals[current->localCount - 1].depth > current->scopeDepth) {
+        emitByte(OP_POP);
+        current->localCount--;
+    }
 }
 
 static void expression();
@@ -193,14 +199,72 @@ static uint8_t identifierConstant(au3Token* name)
     return makeConstant(AU3_OBJECT(au3_copyString(runningVM, name->start, name->length)));
 }
 
+static bool identifiersEqual(au3Token *a, au3Token *b)
+{
+    if (a->length != b->length) return false;
+    return memcmp(a->start, b->start, a->length) == 0;
+}
+
+static int resolveLocal(Compiler *compiler, au3Token *name)
+{
+    for (int i = compiler->localCount - 1; i >= 0; i--) {
+        Local *local = &compiler->locals[i];
+        if (identifiersEqual(name, &local->name)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+static void addLocal(au3Token name)
+{
+    if (current->localCount == AU3_MAX_LOCALS) {
+        error("Too many local variables in function.");
+        return;
+    }
+
+    Local *local = &current->locals[current->localCount++];
+    local->name = name;
+    local->depth = current->scopeDepth;
+}
+
+static void declareVariable()
+{
+    // Global variables are implicitly declared.
+    if (current->scopeDepth == 0) return;
+
+    au3Token *name = &parser.previous;
+    for (int i = current->localCount - 1; i >= 0; i--) {
+        Local *local = &current->locals[i];
+        if (local->depth != -1 && local->depth < current->scopeDepth) {
+            break;
+        }
+
+        if (identifiersEqual(name, &local->name)) {
+            error("Variable with this name already declared in this scope.");
+        }
+    }
+
+    addLocal(*name);
+}
+
 static uint8_t parseVariable(const char *errorMessage)
 {
     consume(TOKEN_IDENTIFIER, errorMessage);
+
+    declareVariable();
+    if (current->scopeDepth > 0) return 0;
+
     return identifierConstant(&parser.previous);
 }
 
 static void defineVariable(uint8_t global)
 {
+    if (current->scopeDepth > 0) {
+        return;
+    }
+
     emitBytes(OP_DEF, global);
 }
 
@@ -263,14 +327,24 @@ static void string(bool canAssign)
 
 static void namedVariable(au3Token name, bool canAssign)
 {
-    uint8_t arg = identifierConstant(&name);
+    uint8_t getOp, setOp;
+    int arg = resolveLocal(current, &name);
+    if (arg != -1) {
+        getOp = OP_LD;
+        setOp = OP_ST;
+    }
+    else {
+        arg = identifierConstant(&name);
+        getOp = OP_GLD;
+        setOp = OP_GST;
+    }
 
     if (canAssign && match(TOKEN_EQUAL)) {
         expression();
-        emitBytes(OP_GST, arg);
+        emitBytes(setOp, (uint8_t)arg);
     }
     else {
-        emitBytes(OP_GLD, arg);
+        emitBytes(getOp, (uint8_t)arg);
     }
 }
 
