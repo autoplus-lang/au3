@@ -36,7 +36,7 @@ typedef struct {
 } au3Value;
 
 typedef struct _au3VM   au3VM;
-typedef int (* au3NativeFn)(au3VM *vm, int argc, au3Value *args);
+typedef au3Value (* au3NativeFn)(au3VM *vm, int argc, au3Value *args);
 
 #define AU3_NULL            ((au3Value){ AU3_TNULL })
 #define AU3_TRUE            ((au3Value){ AU3_TBOOL, .boolean = true })

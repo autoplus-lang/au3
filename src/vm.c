@@ -129,6 +129,14 @@ static bool callValue(au3VM *vm, au3Value callee, int argCount)
             case AU3_TFUNCTION:
                 return call(vm, AU3_AS_FUNCTION(callee), argCount);
 
+            case AU3_TNATIVE: {
+                au3NativeFn native = AU3_AS_NATIVE(callee);
+                au3Value result = native(vm, argCount, vm->top - argCount);
+                vm->top -= argCount + 1;
+                PUSH(vm, result);
+                return true;
+            }
+
             default:
                 // Non-callable object type.                   
                 break;
@@ -368,4 +376,15 @@ au3Status au3_interpret(au3VM *vm, const char *source)
     callValue(vm, AU3_OBJECT(function), 0);
 
    return execute(vm);
+}
+
+void au3_defineNative(au3VM *vm, const char *name, au3NativeFn function, const char *tips)
+{
+    PUSH(vm, AU3_OBJECT(au3_copyString(vm, name, (int)strlen(name))));
+    PUSH(vm, AU3_OBJECT(au3_newNative(vm, function, tips)));
+
+    au3_tableSet(&vm->globals, AU3_AS_STRING(vm->stack[0]), vm->stack[1]);
+    
+    POP(vm);
+    POP(vm);
 }
