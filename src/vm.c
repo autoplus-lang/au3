@@ -178,8 +178,18 @@ static au3Status execute(au3VM *vm)
         }
 
         CASE_CODE(RET) {
+            au3Value result = POP(vm);
 
-            return AU3_OK;
+            if (--vm->frameCount == 0) {
+                POP(vm);
+                return AU3_OK;
+            }
+
+            vm->top = frame->slots;
+            PUSH(vm, result);
+
+            frame = &vm->frames[vm->frameCount - 1];
+            NEXT;
         }
         CASE_CODE(CALL) {
             int argCount = READ_BYTE();
