@@ -36,6 +36,20 @@ void au3_printValue(au3Value value)
     }
 }
 
+bool au3_valuesEqual(au3Value a, au3Value b)
+{
+    if (a.type != b.type) return false;
+
+    switch (a.type) {
+        case AU3_TNULL:     return true;
+        case AU3_TBOOL:     return AU3_AS_BOOL(a) == AU3_AS_BOOL(b);
+        case AU3_TINTEGER:  return AU3_AS_INTEGER(a) == AU3_AS_INTEGER(b);
+        case AU3_TNUMBER:   return AU3_AS_NUMBER(a) == AU3_AS_NUMBER(b);
+    }
+
+    return false;
+}
+
 void au3_initValueArray(au3ValueArray *array)
 {
     array->values = NULL;

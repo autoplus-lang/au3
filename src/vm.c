@@ -76,6 +76,7 @@ static au3Status execute(au3VM *vm)
 
             return AU3_OK;
         }
+
         CASE_CODE(NEG) {
             if (!AU3_IS_NUMBER(PEEK(vm, 0))) {
                 runtimeError(vm, "Operand must be a number.");
@@ -86,25 +87,41 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
         CASE_CODE(ADD) {
-            BINARY_OP(AU3_NUMBER, +);
+            BINARY_OP(AU3_NUMBER, + );
             NEXT;
         }
         CASE_CODE(SUB) {
-            BINARY_OP(AU3_NUMBER, -);
+            BINARY_OP(AU3_NUMBER, - );
             NEXT;
         }
         CASE_CODE(MUL) {
-            BINARY_OP(AU3_NUMBER, *);
+            BINARY_OP(AU3_NUMBER, * );
             NEXT;
         }
         CASE_CODE(DIV) {
-            BINARY_OP(AU3_NUMBER, /);
+            BINARY_OP(AU3_NUMBER, / );
             NEXT;
         }
+
         CASE_CODE(NOT) {
             PUSH(vm, AU3_BOOL(AU3_IS_FALSEY(POP(vm))));
-            break;
+            NEXT;
         }
+        CASE_CODE(EQ) {
+            au3Value b = POP(vm);
+            au3Value a = POP(vm);
+            PUSH(vm, AU3_BOOL(au3_valuesEqual(a, b)));
+            NEXT;
+        }
+        CASE_CODE(LT) {
+            BINARY_OP(AU3_BOOL, < );
+            NEXT;
+        }
+        CASE_CODE(LE) {
+            BINARY_OP(AU3_BOOL, <= );
+            NEXT;
+        }
+
         CASE_CODE(NULL) {
             PUSH(vm, AU3_NULL);
             NEXT;

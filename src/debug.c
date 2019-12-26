@@ -40,6 +40,12 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
 
         case OP_NOT:
             return simpleInstruction("OP_NOT", offset);
+        case OP_EQ:
+            return simpleInstruction("OP_EQ", offset);
+        case OP_LT:
+            return simpleInstruction("OP_LT", offset);
+        case OP_LE:
+            return simpleInstruction("OP_LE", offset);
 
         default:
             printf("Unknown opcode %d\n", instruction);

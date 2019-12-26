@@ -63,5 +63,6 @@ void au3_freeValueArray(au3ValueArray *array);
 
 const char *au3_typeofValue(au3Value value);
 void au3_printValue(au3Value value);
+bool au3_valuesEqual(au3Value a, au3Value b);
 
 #endif
