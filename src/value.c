@@ -4,6 +4,7 @@
 
 #include "value.h"
 #include "object.h"
+#include "memory.h"
 
 const char *au3_typeofValue(au3Value value)
 {
@@ -76,7 +77,7 @@ void au3_freeValueArray(au3ValueArray* array)
 void au3_writeValueArray(au3ValueArray *array, au3Value value)
 {
     if (array->capacity < array->count + 1) {
-        array->capacity = (array->capacity < 8) ? 8 : array->capacity * 2;
+        array->capacity = AU3_GROW_CAPACITY(array->capacity);
         array->values = realloc(array->values, sizeof(au3Value) * array->capacity);
     }
 
