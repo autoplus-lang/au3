@@ -138,11 +138,19 @@ static bool callValue(au3VM *vm, au3Value callee, int argCount)
 
 static au3Status execute(au3VM *vm)
 {
-    au3CallFrame *frame = &vm->frames[vm->frameCount - 1];
+    register uint8_t *ip;
+    register au3CallFrame *frame;
 
-#define READ_BYTE()     (*frame->ip++)
-#define READ_SHORT()    (frame->ip += 2, (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
-#define READ_LAST()     (frame->ip[-1])
+#define STORE_FRAME() \
+	frame->ip = ip
+
+#define LOAD_FRAME() \
+	frame = &vm->frames[vm->frameCount - 1]; \
+	ip = frame->ip
+
+#define READ_BYTE()     (*ip++)
+#define READ_SHORT()    (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
+#define READ_LAST()     (ip[-1])
 
 #define READ_CONST()    (frame->function->chunk.constants.values[READ_BYTE()])
 #define READ_STRING()   AU3_AS_STRING(READ_CONST())
@@ -162,6 +170,8 @@ static au3Status execute(au3VM *vm)
 #define CASE_CODE(x)    case OP_##x:
 #define CASE_ERROR()    default:
 #define NEXT            continue
+
+    LOAD_FRAME();
 
     DISPATCH() {
 
@@ -188,16 +198,18 @@ static au3Status execute(au3VM *vm)
             vm->top = frame->slots;
             PUSH(vm, result);
 
-            frame = &vm->frames[vm->frameCount - 1];
+            LOAD_FRAME();
             NEXT;
         }
         CASE_CODE(CALL) {
             int argCount = READ_BYTE();
+
+            STORE_FRAME();
             if (!callValue(vm, PEEK(vm, argCount), argCount)) {
                 return AU3_RUNTIME_ERROR;
             }
 
-            frame = &vm->frames[vm->frameCount - 1];
+            LOAD_FRAME();
             NEXT;
         }
 
@@ -314,17 +326,17 @@ static au3Status execute(au3VM *vm)
 
         CASE_CODE(JMP) {
             uint16_t offset = READ_SHORT();
-            frame->ip += offset;
+            ip += offset;
             NEXT;
         }
         CASE_CODE(JMPF) {
             uint16_t offset = READ_SHORT();
-            if (AU3_IS_FALSEY(PEEK(vm, 0))) frame->ip += offset;
+            if (AU3_IS_FALSEY(PEEK(vm, 0))) ip += offset;
             NEXT;
         }
         CASE_CODE(LOOP) {
             uint16_t offset = READ_SHORT();
-            frame->ip -= offset;
+            ip -= offset;
             NEXT;
         }
 

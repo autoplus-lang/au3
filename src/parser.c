@@ -424,6 +424,22 @@ static void number(bool canAssign)
     emitConstant(AU3_NUMBER(value));
 }
 
+static void integer(bool canAssign)
+{
+    int64_t value = 0;
+
+    switch (parser.previous.type) {
+        case TOKEN_INTEGER:
+            value = strtoll(parser.previous.start, NULL, 0);
+            break;
+        case TOKEN_HEXADECIMAL:
+            value = strtoll(parser.previous.start + 2, NULL, 16);
+            break;
+    }
+
+    emitConstant(AU3_INTEGER(value));
+}
+
 static void or_(bool canAssign)
 {
     int elseJump = emitJump(OP_JMPF);
@@ -512,6 +528,8 @@ static ParseRule rules[] = {
     [TOKEN_IDENTIFIER]      = { variable, NULL,    PREC_NONE },
     [TOKEN_STRING]          = { string,   NULL,    PREC_NONE },
     [TOKEN_NUMBER]          = { number,   NULL,    PREC_NONE },
+    [TOKEN_INTEGER]         = { integer,  NULL,    PREC_NONE },
+    [TOKEN_HEXADECIMAL]     = { integer,  NULL,    PREC_NONE },
 
     [TOKEN_AND]             = { NULL,     and_,    PREC_AND },
     [TOKEN_CLASS]           = { NULL,     NULL,    PREC_NONE },

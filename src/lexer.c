@@ -34,6 +34,13 @@ static bool isDigit(char c)
         && (c <= '9');
 }
 
+static bool isHexDigit(char c)
+{
+    return (c >= '0' && c <= '9')
+        || (c >= 'a' && c <= 'f')
+        || (c >= 'A' && c <= 'F');
+}
+
 static bool isAtEnd()
 {
     return *lexer.current == '\0';
@@ -190,6 +197,17 @@ static au3Token identifier()
 
 static au3Token number()
 {
+    if (lexer.start[0] == '0' &&
+        (peek() == 'x' || peek() == 'X')) {
+        advance();
+        while (isDigit(peek()) || isAlpha(peek())) {
+            if (!isHexDigit(advance()))
+                return errorToken("Expect binary digit.");
+        }
+
+        return makeToken(TOKEN_HEXADECIMAL);
+    }
+
     while (isDigit(peek())) advance();
 
     // Look for a fractional part.             
@@ -198,9 +216,11 @@ static au3Token number()
         advance();
 
         while (isDigit(peek())) advance();
+
+        return makeToken(TOKEN_NUMBER);
     }
 
-    return makeToken(TOKEN_NUMBER);
+    return makeToken(TOKEN_INTEGER);
 }
 
 static au3Token string(char begin)
