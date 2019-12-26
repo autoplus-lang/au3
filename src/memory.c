@@ -26,9 +26,7 @@ static void freeObject(au3Object *object)
         case AU3_TFUNCTION: {
             au3Function *function = (au3Function *)object;
             au3_freeChunk(&function->chunk);
-            for (int i = 0; i < function->upvalueCount; i++) {
-                free(function->upvalues[i]);
-            }
+            free(function->upvalues);
             AU3_FREE(au3Function, object);
             break;
         }

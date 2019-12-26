@@ -57,7 +57,8 @@ au3VM *au3_create()
         g_pVM = vm;
     }
     else {
-        vm = calloc(sizeof(au3VM), 1);
+        vm = malloc(sizeof(au3VM));
+        memset(vm, '\0', sizeof(au3VM));
         if (vm == NULL) return NULL;
     }
     
@@ -71,7 +72,7 @@ au3VM *au3_create()
 
 void au3_close(au3VM *vm)
 {
-    if (vm != NULL && g_pVM != NULL) {
+    if (vm == NULL && g_pVM != NULL) {
         vm = g_pVM;
     }
     

@@ -77,6 +77,7 @@ au3Function *au3_newFunction(au3VM *vm)
 
     function->arity = 0;
     function->upvalueCount = 0;
+    function->upvalues = NULL;
     function->name = NULL;
     au3_initChunk(&function->chunk);
 
@@ -108,7 +109,12 @@ au3Native *au3_newNative(au3VM *vm, au3NativeFn function, const char *tips)
 {
     au3Native *native = ALLOCATE_OBJ(au3Native, AU3_TNATIVE);
     native->function = function;
-    native->tips = tips != NULL ? strdup(tips) : tips;
+    if (tips != NULL) {
+        size_t length = strlen(tips);
+        native->tips = malloc(sizeof(char) * (length + 1));
+        memcpy(native->tips, '\0', length);
+        native->tips[length] = '\0';
+    }
 
     return native;
 }
