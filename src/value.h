@@ -24,6 +24,8 @@ typedef struct {
         int64_t integer;
         double number;
         au3Object *object;
+
+        uint64_t raw;
     };
 } au3Value;
 
@@ -46,6 +48,8 @@ typedef struct {
 #define AU3_IS_INTEGER(v)   ((v).type == AU3_TINTEGER)
 #define AU3_IS_NUMBER(v)    ((v).type == AU3_TNUMBER)
 #define AU3_IS_OBJECT(v)    ((v).type == AU3_TOBJECT)
+
+#define AU3_IS_FALSEY(v)    (!(bool)((v).raw))
 
 typedef struct {
     int count;
