@@ -64,7 +64,7 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
             return constantInstruction("OP_CONST", chunk, offset);
 
         case OP_PUTS:
-            return simpleInstruction("OP_PUTS", offset);
+            return byteInstruction("OP_PUTS", chunk, offset);
         case OP_POP:
             return simpleInstruction("OP_POP", offset);
 

@@ -681,10 +681,22 @@ static void ifStatement()
 
 static void putsStatement()
 {
-    expression();
+    int count = 0;
+
+    do {
+        expression();
+        if (++count > AU3_MAX_ARGS) {
+            error("Too many values in 'puts' statement.");
+            return;
+        }
+    } while (match(TOKEN_COMMA));
+
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
 
-    emitByte(OP_PUTS);
+    emitBytes(OP_PUTS, (uint8_t)count);
+    for (int i = 0; i < count; i++) {
+        emitByte(OP_POP);
+    }
 }
 
 static void returnStatement()

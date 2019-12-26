@@ -195,7 +195,11 @@ static au3Status execute(au3VM *vm)
         CASE_CODE(NOP) NEXT;
 
         CASE_CODE(PUTS) {
-            au3_printValue(POP(vm));
+            int count = READ_BYTE();
+            for (int i = count - 1; i >= 0; i--) {
+                au3_printValue(PEEK(vm, i));
+                if (i != 0) printf("\t");
+            } 
             printf("\n");
             NEXT;
         }
