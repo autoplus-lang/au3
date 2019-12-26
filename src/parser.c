@@ -659,7 +659,9 @@ static void varDeclaration()
 static void globalDeclaration()
 {
     do {
-        uint8_t global = parseVariable("Expect variable name.");
+        consume(TOKEN_IDENTIFIER, "Expect variable name.");
+        uint8_t global = identifierConstant(&parser.previous);
+
         if (match(TOKEN_EQUAL)) {
             expression();
         }
@@ -667,6 +669,7 @@ static void globalDeclaration()
             emitByte(OP_NULL);
         }
         emitBytes(OP_DEF, global);
+
     } while (match(TOKEN_COMMA));
 
     consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
