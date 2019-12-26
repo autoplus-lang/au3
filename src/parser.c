@@ -656,6 +656,22 @@ static void varDeclaration()
     defineVariable(global);
 }
 
+static void globalDeclaration()
+{
+    do {
+        uint8_t global = parseVariable("Expect variable name.");
+        if (match(TOKEN_EQUAL)) {
+            expression();
+        }
+        else {
+            emitByte(OP_NULL);
+        }
+        emitBytes(OP_DEF, global);
+    } while (match(TOKEN_COMMA));
+
+    consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+}
+
 static void expressionStatement()
 {
     expression();
@@ -757,13 +773,14 @@ static void synchronize()
 
         switch (parser.current.type) {
             case TOKEN_CLASS:
-            case TOKEN_FUN:
-            case TOKEN_VAR:
+            case TOKEN_FUN:     
             case TOKEN_FOR:
+            case TOKEN_GLOBAL:
             case TOKEN_IF:
-            case TOKEN_WHILE:
             case TOKEN_PUTS:
             case TOKEN_RETURN:
+            case TOKEN_VAR:
+            case TOKEN_WHILE:
                 return;
 
             default:
@@ -782,6 +799,9 @@ static void declaration()
     }
     else if (match(TOKEN_VAR)) {
         varDeclaration();
+    }
+    else if (match(TOKEN_GLOBAL)) {
+        globalDeclaration();
     }
     else {
         statement();
