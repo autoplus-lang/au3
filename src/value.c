@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "value.h"
+#include "object.h"
 
 const char *au3_typeofValue(au3Value value)
 {
@@ -51,6 +53,12 @@ bool au3_valuesEqual(au3Value a, au3Value b)
         case AU3_TBOOL:     return AU3_AS_BOOL(a) == AU3_AS_BOOL(b);
         case AU3_TINTEGER:  return AU3_AS_INTEGER(a) == AU3_AS_INTEGER(b);
         case AU3_TNUMBER:   return AU3_AS_NUMBER(a) == AU3_AS_NUMBER(b);
+        case AU3_TOBJECT: {
+            au3String *aString = AU3_AS_STRING(a);
+            au3String *bString = AU3_AS_STRING(b);
+            return aString->length == bString->length &&
+                memcmp(aString->chars, bString->chars, aString->length) == 0;
+        }
     }
 
     return false;
