@@ -42,4 +42,6 @@ typedef struct {
 void au3_initLexer(const char *source);
 au3Token au3_scanToken();
 
+bool au3_compile(const char *source, au3Chunk *chunk);
+
 #endif

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "vm.h"
+#include "compiler.h"
 
 static void resetStack(au3VM *vm)
 {
@@ -67,10 +68,15 @@ au3Status au3_interpret(au3VM *vm, const char *source)
     au3Chunk chunk;
     au3_initChunk(&chunk);
 
+    if (!au3_compile(source, &chunk)) {
+        au3_freeChunk(&chunk);
+        return AU3_COMPILE_ERROR;
+    }
+
     vm->chunk = &chunk;
     vm->ip = vm->chunk->code;
     au3Status result = execute(vm);
 
     au3_freeChunk(&chunk);
-    return AU3_OK;
+    return result;
 }
