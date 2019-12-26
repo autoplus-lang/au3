@@ -184,6 +184,7 @@ static au3TokenType identifierType()
             break;
         case 'g': return checkKeyword(1, 5, "lobal", TOKEN_GLOBAL);
         case 'i': return checkKeyword(1, 1, "f", TOKEN_IF);
+        case 'l': return checkKeyword(1, 4, "ocal", TOKEN_LOCAL);
         case 'n': return checkKeyword(1, 3, "ull", TOKEN_NULL);
         case 'o': return checkKeyword(1, 1, "r", TOKEN_OR);
         case 'p': return checkKeyword(1, 3, "uts", TOKEN_PUTS);

@@ -47,6 +47,7 @@ typedef enum {
     TOKEN_FUN,
     TOKEN_GLOBAL,
     TOKEN_IF,
+    TOKEN_LOCAL,
     TOKEN_NULL,
     TOKEN_OR,
     TOKEN_PUTS,
