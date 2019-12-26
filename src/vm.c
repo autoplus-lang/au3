@@ -167,11 +167,11 @@ static au3Status execute(au3VM *vm)
 
 #define BINARY_OP(valueType, op) \
     do { \
-        if (!AU3_IS_NUMBER(PEEK(vm, 0)) || !AU3_IS_NUMBER(PEEK(vm, 1))) { \
+        if (!AU3_IS_INTEGER(PEEK(vm, 0)) || !AU3_IS_INTEGER(PEEK(vm, 1))) { \
             ERROR("Operands must be numbers."); \
         } \
-        double b = AU3_AS_NUMBER(POP(vm)); \
-        double a = AU3_AS_NUMBER(POP(vm)); \
+        int64_t b = AU3_AS_INTEGER(POP(vm)); \
+        int64_t a = AU3_AS_INTEGER(POP(vm)); \
         PUSH(vm, valueType(a op b)); \
     } while (false)
 
@@ -223,21 +223,21 @@ static au3Status execute(au3VM *vm)
         }
 
         CASE_CODE(NEG) {
-            if (!AU3_IS_NUMBER(PEEK(vm, 0))) {
+            if (!AU3_IS_INTEGER(PEEK(vm, 0))) {
                 ERROR("Operand must be a number.");
             }
 
-            PUSH(vm, AU3_NUMBER(-AU3_AS_NUMBER(POP(vm))));
+            PUSH(vm, AU3_INTEGER(-AU3_AS_INTEGER(POP(vm))));
             NEXT;
         }
         CASE_CODE(ADD) {
             if (AU3_IS_STRING(PEEK(vm, 0)) && AU3_IS_STRING(PEEK(vm, 1))) {
                 concatenate(vm);
             }
-            else if (AU3_IS_NUMBER(PEEK(vm, 0)) && AU3_IS_NUMBER(PEEK(vm, 1))) {
-                double b = AU3_AS_NUMBER(POP(vm));
-                double a = AU3_AS_NUMBER(POP(vm));
-                PUSH(vm, AU3_NUMBER(a + b));
+            else if (AU3_IS_INTEGER(PEEK(vm, 0)) && AU3_IS_INTEGER(PEEK(vm, 1))) {
+                int64_t b = AU3_AS_INTEGER(POP(vm));
+                int64_t a = AU3_AS_INTEGER(POP(vm));
+                PUSH(vm, AU3_INTEGER(a + b));
             }
             else {
                 ERROR("Operands must be two numbers or two strings.");
@@ -245,15 +245,15 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
         CASE_CODE(SUB) {
-            BINARY_OP(AU3_NUMBER, - );
+            BINARY_OP(AU3_INTEGER, - );
             NEXT;
         }
         CASE_CODE(MUL) {
-            BINARY_OP(AU3_NUMBER, * );
+            BINARY_OP(AU3_INTEGER, * );
             NEXT;
         }
         CASE_CODE(DIV) {
-            BINARY_OP(AU3_NUMBER, / );
+            BINARY_OP(AU3_INTEGER, / );
             NEXT;
         }
 
