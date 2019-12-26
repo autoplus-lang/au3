@@ -7,8 +7,8 @@
 #include "vm.h"
 
 struct _au3Object {
-    au3ObjectType type;
-    bool isMarked;
+    au3ObjectType type : 8;
+    unsigned isMarked : 1;
     struct _au3Object *next;
 };
 
