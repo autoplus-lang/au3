@@ -194,7 +194,8 @@ static void unary()
 
     // Emit the operator instruction.              
     switch (operatorType) {
-        case TOKEN_MINUS: emitByte(OP_NEG); break;
+        case TOKEN_BANG:    emitByte(OP_NOT); break;
+        case TOKEN_MINUS:   emitByte(OP_NEG); break;
         default:
             return; // Unreachable.                    
     }
@@ -205,6 +206,7 @@ static ParseRule rules[] = {
     [TOKEN_RIGHT_PAREN]     = { NULL,     NULL,    PREC_NONE },
     [TOKEN_LEFT_BRACE]      = { NULL,     NULL,    PREC_NONE },
     [TOKEN_RIGHT_BRACE]     = { NULL,     NULL,    PREC_NONE },
+
     [TOKEN_COMMA]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_DOT]             = { NULL,     NULL,    PREC_NONE },
     [TOKEN_MINUS]           = { unary,    binary,  PREC_TERM },
@@ -212,7 +214,8 @@ static ParseRule rules[] = {
     [TOKEN_SEMICOLON]       = { NULL,     NULL,    PREC_NONE },
     [TOKEN_SLASH]           = { NULL,     binary,  PREC_FACTOR },
     [TOKEN_STAR]            = { NULL,     binary,  PREC_FACTOR },
-    [TOKEN_BANG]            = { NULL,     NULL,    PREC_NONE },
+
+    [TOKEN_BANG]            = { unary,    NULL,    PREC_NONE },
     [TOKEN_BANG_EQUAL]      = { NULL,     NULL,    PREC_NONE },
     [TOKEN_EQUAL]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_EQUAL_EQUAL]     = { NULL,     NULL,    PREC_NONE },
@@ -220,9 +223,11 @@ static ParseRule rules[] = {
     [TOKEN_GREATER_EQUAL]   = { NULL,     NULL,    PREC_NONE },
     [TOKEN_LESS]            = { NULL,     NULL,    PREC_NONE },
     [TOKEN_LESS_EQUAL]      = { NULL,     NULL,    PREC_NONE },
+
     [TOKEN_IDENTIFIER]      = { NULL,     NULL,    PREC_NONE },
     [TOKEN_STRING]          = { NULL,     NULL,    PREC_NONE },
     [TOKEN_NUMBER]          = { number,   NULL,    PREC_NONE },
+
     [TOKEN_AND]             = { NULL,     NULL,    PREC_NONE },
     [TOKEN_CLASS]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_ELSE]            = { NULL,     NULL,    PREC_NONE },
@@ -239,6 +244,7 @@ static ParseRule rules[] = {
     [TOKEN_TRUE]            = { literal,  NULL,    PREC_NONE },
     [TOKEN_VAR]             = { NULL,     NULL,    PREC_NONE },
     [TOKEN_WHILE]           = { NULL,     NULL,    PREC_NONE },
+
     [TOKEN_ERROR]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_EOF]             = { NULL,     NULL,    PREC_NONE },
 };

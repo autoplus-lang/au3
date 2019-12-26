@@ -101,6 +101,10 @@ static au3Status execute(au3VM *vm)
             BINARY_OP(AU3_NUMBER, /);
             NEXT;
         }
+        CASE_CODE(NOT) {
+            PUSH(vm, AU3_BOOL(AU3_IS_FALSEY(POP(vm))));
+            break;
+        }
         CASE_CODE(NULL) {
             PUSH(vm, AU3_NULL);
             NEXT;
