@@ -380,11 +380,30 @@ au3Status au3_interpret(au3VM *vm, const char *source)
 
 void au3_defineNative(au3VM *vm, const char *name, au3NativeFn function, const char *tips)
 {
-    PUSH(vm, AU3_OBJECT(au3_copyString(vm, name, (int)strlen(name))));
-    PUSH(vm, AU3_OBJECT(au3_newNative(vm, function, tips)));
+    au3Value g_name = AU3_OBJECT(au3_copyString(vm, name, (int)strlen(name)));
+    au3Value native = AU3_OBJECT(au3_newNative(vm, function, tips));
+    PUSH(vm, g_name); PUSH(vm, native);
 
-    au3_tableSet(&vm->globals, AU3_AS_STRING(vm->stack[0]), vm->stack[1]);
-    
+    au3_tableSet(&vm->globals, AU3_AS_STRING(g_name), native);
+    POP(vm); POP(vm);
+}
+
+void au3_setGlobal(au3VM *vm, const char *name, au3Value value)
+{
+    au3Value g_name = AU3_OBJECT(au3_copyString(vm, name, (int)strlen(name)));
+    PUSH(vm, g_name); PUSH(vm, value);
+
+    au3_tableSet(&vm->globals, AU3_AS_STRING(g_name), value);
+    POP(vm); POP(vm);
+}
+
+au3Value au3_getGlobal(au3VM *vm, const char *name)
+{
+    au3Value g_name = AU3_OBJECT(au3_copyString(vm, name, (int)strlen(name)));
+    au3Value value;
+
+    au3_tableGet(&vm->globals, AU3_AS_STRING(g_name), &value);
     POP(vm);
-    POP(vm);
+
+    return value;
 }
