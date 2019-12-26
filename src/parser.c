@@ -523,13 +523,17 @@ static void ifStatement()
     emitByte(OP_POP);
     statement();
 
-    int elseJump = emitJump(OP_JMP);
+    if (match(TOKEN_ELSE)) {
+        int elseJump = emitJump(OP_JMP);
+        patchJump(thenJump);
+        emitByte(OP_POP);
 
-    patchJump(thenJump);
-    emitByte(OP_POP);
-
-    if (match(TOKEN_ELSE)) statement();
-    patchJump(elseJump);
+        statement();
+        patchJump(elseJump);
+    }
+    else {
+        patchJump(thenJump);
+    }
 }
 
 static void putsStatement()
