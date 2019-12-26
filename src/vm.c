@@ -320,6 +320,10 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
 
+        CASE_CODE(SELF) {
+            PUSH(vm, frame->slots[0]);
+            NEXT;
+        }
         CASE_CODE(LD) {
             uint8_t slot = READ_BYTE();
             PUSH(vm, frame->slots[slot]);

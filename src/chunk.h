@@ -45,6 +45,7 @@ typedef enum {
     OP_GLD,
     OP_GST,
 
+    OP_SELF,
     OP_LD,
     OP_ST,
 

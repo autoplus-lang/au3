@@ -407,6 +407,7 @@ static void literal(bool canAssign)
         case TOKEN_FALSE:   emitByte(OP_FALSE); break;
         case TOKEN_NULL:    emitByte(OP_NULL); break;
         case TOKEN_TRUE:    emitByte(OP_TRUE); break;
+        case TOKEN_FUN:     emitByte(OP_SELF); break;
         default:
             return; // Unreachable.                   
     }
@@ -536,7 +537,7 @@ static ParseRule rules[] = {
     [TOKEN_ELSE]            = { NULL,     NULL,    PREC_NONE },
     [TOKEN_FALSE]           = { literal,  NULL,    PREC_NONE },
     [TOKEN_FOR]             = { NULL,     NULL,    PREC_NONE },
-    [TOKEN_FUN]             = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_FUN]             = { literal,  NULL,    PREC_NONE },
     [TOKEN_IF]              = { NULL,     NULL,    PREC_NONE },
     [TOKEN_NULL]            = { literal,  NULL,    PREC_NONE },
     [TOKEN_OR]              = { NULL,     or_,     PREC_OR },

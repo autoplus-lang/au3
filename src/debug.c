@@ -100,6 +100,8 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
         case OP_GST:
             return constantInstruction("OP_GST", chunk, offset);
 
+        case OP_SELF:
+            return simpleInstruction("OP_SELF", offset);
         case OP_LD:
             return byteInstruction("OP_LD", chunk, offset);
         case OP_ST:
