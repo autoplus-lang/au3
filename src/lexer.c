@@ -284,6 +284,8 @@ au3Token au3_scanToken()
         case '/': return makeToken(TOKEN_SLASH);
         case '*': return makeToken(TOKEN_STAR);
 
+        case '&': return makeToken(TOKEN_AMPERSAND);
+
         case '!':
             return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
         case '=':
