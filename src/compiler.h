@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include "chunk.h"
+#include "vm.h"
 
 typedef enum {
     // Single-character tokens.                         
@@ -44,6 +45,6 @@ typedef struct {
 void au3_initLexer(const char *source);
 au3Token au3_scanToken();
 
-bool au3_compile(const char *source, au3Chunk *chunk);
+bool au3_compile(au3VM *vm, const char *source, au3Chunk *chunk);
 
 #endif

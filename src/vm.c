@@ -182,7 +182,7 @@ au3Status au3_interpret(au3VM *vm, const char *source)
     au3Chunk chunk;
     au3_initChunk(&chunk);
 
-    if (!au3_compile(source, &chunk)) {
+    if (!au3_compile(vm, source, &chunk)) {
         au3_freeChunk(&chunk);
         return AU3_COMPILE_ERROR;
     }
