@@ -519,6 +519,8 @@ static ParseRule rules[] = {
     [TOKEN_SLASH]           = { NULL,     binary,  PREC_FACTOR },
     [TOKEN_STAR]            = { NULL,     binary,  PREC_FACTOR },
 
+    [TOKEN_AMPERSAND]       = { NULL,     NULL,    PREC_NONE },
+
     [TOKEN_BANG]            = { unary,    NULL,    PREC_NONE },
     [TOKEN_BANG_EQUAL]      = { NULL,     binary,  PREC_EQUALITY },
     [TOKEN_EQUAL]           = { NULL,     NULL,    PREC_NONE },
