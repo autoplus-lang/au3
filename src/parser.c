@@ -662,8 +662,13 @@ static void ifStatement()
 {
     bool hadParen = match(TOKEN_LEFT_PAREN);
     expression();
-    if (hadParen) consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
-    consume(TOKEN_THEN, "Expect 'then' after %s.", hadParen ? "')'" : "condition");
+    if (hadParen) {
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+        match(TOKEN_THEN);
+    }
+    else {
+        consume(TOKEN_THEN, "Expect 'then' after %s.", hadParen ? "')'" : "condition");
+    }
 
     int thenJump = emitJump(OP_JMPF);
     emitByte(OP_POP);
