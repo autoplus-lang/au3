@@ -6,8 +6,33 @@
 #include "value.h"
 
 typedef enum {
+
+    OP_NOP,
+
     OP_RET,
     OP_CONST,
+
+    OP_NEG,
+    OP_ADD,
+    OP_SUB,
+    OP_MUL,
+    OP_DIV,
+    OP_MOD,
+    OP_POW,
+
+    OP_NOT,
+    OP_LT,
+    OP_LE,
+    OP_EQ,
+
+    OP_BNOT,
+    OP_BOR,
+    OP_BAND,
+    OP_BXOR,
+
+    OP_SHL,
+    OP_SHR,
+
 } au3Opcode;
 
 typedef struct {
