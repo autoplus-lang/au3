@@ -149,6 +149,7 @@ static void endCompiler()
 
     if (!parser.hadError) {
         au3_disassembleChunk(currentChunk(), "code");
+        printf("==========\n\n");
     }
 }
 
