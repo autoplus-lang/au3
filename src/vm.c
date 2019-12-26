@@ -11,6 +11,21 @@ static void resetStack(au3VM *vm)
     vm->top = vm->stack;
 }
 
+static void runtimeError(au3VM *vm, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    fputs("\n", stderr);
+
+    size_t instruction = vm->ip - vm->chunk->code;
+    int line = vm->chunk->lines[instruction];
+    fprintf(stderr, "[line %d] in script\n", line);
+
+    resetStack(vm);
+}
+
 au3VM *au3_create()
 {
     au3VM *vm = calloc(sizeof(au3VM), 1);
