@@ -267,7 +267,7 @@ static ParseRule rules[] = {
     [TOKEN_IF]              = { NULL,     NULL,    PREC_NONE },
     [TOKEN_NULL]            = { literal,  NULL,    PREC_NONE },
     [TOKEN_OR]              = { NULL,     NULL,    PREC_NONE },
-    [TOKEN_PRINT]           = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_PUTS]            = { NULL,     NULL,    PREC_NONE },
     [TOKEN_RETURN]          = { NULL,     NULL,    PREC_NONE },
     [TOKEN_SUPER]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_THIS]            = { NULL,     NULL,    PREC_NONE },
@@ -322,7 +322,7 @@ static void declaration()
 
 static void statement()
 {
-    if (match(TOKEN_PRINT)) {
+    if (match(TOKEN_PUTS)) {
         printStatement();
     }
 }
