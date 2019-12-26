@@ -30,6 +30,8 @@ struct _au3Function {
 struct _au3Upvalue {
     au3Object object;
     au3Value *location;
+    au3Value closed;
+    struct _au3Upvalue *next;
 };
 
 struct _au3Native {

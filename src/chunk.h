@@ -50,6 +50,7 @@ typedef enum {
     OP_ST,
 
     OP_CLO,
+    OP_CLU,
     OP_ULD,
     OP_UST,
 

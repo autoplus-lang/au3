@@ -125,6 +125,8 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
 
             return offset;
         }
+        case OP_CLU:
+            return simpleInstruction("OP_CLU", offset);
         case OP_ULD:
             return byteInstruction("OP_ULD", chunk, offset);
         case OP_UST:

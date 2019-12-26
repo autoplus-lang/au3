@@ -21,6 +21,7 @@ typedef struct _au3VM {
 
     au3Table strings;
     au3Table globals;
+    au3Upvalue *openUpvalues;
     au3Object *objects;
 
 } au3VM;

@@ -99,6 +99,7 @@ au3Upvalue *au3_newUpvalue(au3VM *vm, au3Value *slot)
 {
     au3Upvalue *upvalue = ALLOCATE_OBJ(au3Upvalue, AU3_TUPVALUE);
     upvalue->location = slot;
+    upvalue->next = NULL;
 
     return upvalue;
 }

@@ -15,6 +15,7 @@ static void resetStack(au3VM *vm)
 {
     vm->top = vm->stack;
     vm->frameCount = 0;
+    vm->openUpvalues = NULL;
 }
 
 static void runtimeError(au3VM *vm, const char *format, ...)
@@ -149,8 +150,37 @@ static bool callValue(au3VM *vm, au3Value callee, int argCount)
 
 static au3Upvalue *captureUpvalue(au3VM *vm, au3Value *local)
 {
-    au3Upvalue* createdUpvalue = au3_newUpvalue(vm, local);
+    au3Upvalue *prevUpvalue = NULL;
+    au3Upvalue *upvalue = vm->openUpvalues;
+
+    while (upvalue != NULL && upvalue->location > local) {
+        prevUpvalue = upvalue;
+        upvalue = upvalue->next;
+    }
+
+    if (upvalue != NULL && upvalue->location == local) return upvalue;
+
+    au3Upvalue *createdUpvalue = au3_newUpvalue(vm, local);
+    createdUpvalue->next = upvalue;
+
+    if (prevUpvalue == NULL) {
+        vm->openUpvalues = createdUpvalue;
+    }
+    else {
+        prevUpvalue->next = createdUpvalue;
+    }
+
     return createdUpvalue;
+}
+
+static void closeUpvalues(au3VM *vm, au3Value *last)
+{
+    while (vm->openUpvalues != NULL && vm->openUpvalues->location >= last) {
+        au3Upvalue *upvalue = vm->openUpvalues;
+        upvalue->closed = *upvalue->location;
+        upvalue->location = &upvalue->closed;
+        vm->openUpvalues = upvalue->next;
+    }
 }
 
 static au3Status execute(au3VM *vm)
@@ -217,6 +247,7 @@ static au3Status execute(au3VM *vm)
         CASE_CODE(RET) {
             au3Value result = POP(vm);
 
+            closeUpvalues(vm, frame->slots);
             if (--vm->frameCount == 0) {
                 POP(vm);
                 return AU3_OK;
@@ -361,6 +392,11 @@ static au3Status execute(au3VM *vm)
                 }
             }
 
+            NEXT;
+        }
+        CASE_CODE(CLU) {
+            closeUpvalues(vm, vm->top - 1);
+            POP(vm);
             NEXT;
         }
         CASE_CODE(ULD) {
