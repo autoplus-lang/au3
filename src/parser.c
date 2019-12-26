@@ -299,6 +299,16 @@ static void defineVariable(uint8_t global)
     emitBytes(OP_DEF, global);
 }
 
+static void and_(bool canAssign)
+{
+    int endJump = emitJump(OP_JMPF);
+
+    emitByte(OP_POP);
+    parsePrecedence(PREC_AND);
+
+    patchJump(endJump);
+}
+
 static void binary(bool canAssign)
 {
     // Remember the operator.                                
@@ -348,6 +358,18 @@ static void number(bool canAssign)
 {
     double value = strtod(parser.previous.start, NULL);
     emitConstant(AU3_NUMBER(value));
+}
+
+static void or_(bool canAssign)
+{
+    int elseJump = emitJump(OP_JMPF);
+    int endJump = emitJump(OP_JMP);
+
+    patchJump(elseJump);
+    emitByte(OP_POP);
+
+    parsePrecedence(PREC_OR);
+    patchJump(endJump);
 }
 
 static void string(bool canAssign)
@@ -427,7 +449,7 @@ static ParseRule rules[] = {
     [TOKEN_STRING]          = { string,   NULL,    PREC_NONE },
     [TOKEN_NUMBER]          = { number,   NULL,    PREC_NONE },
 
-    [TOKEN_AND]             = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_AND]             = { NULL,     and_,    PREC_AND },
     [TOKEN_CLASS]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_ELSE]            = { NULL,     NULL,    PREC_NONE },
     [TOKEN_FALSE]           = { literal,  NULL,    PREC_NONE },
@@ -435,7 +457,7 @@ static ParseRule rules[] = {
     [TOKEN_FUN]             = { NULL,     NULL,    PREC_NONE },
     [TOKEN_IF]              = { NULL,     NULL,    PREC_NONE },
     [TOKEN_NULL]            = { literal,  NULL,    PREC_NONE },
-    [TOKEN_OR]              = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_OR]              = { NULL,     or_,     PREC_OR },
     [TOKEN_PUTS]            = { NULL,     NULL,    PREC_NONE },
     [TOKEN_RETURN]          = { NULL,     NULL,    PREC_NONE },
     [TOKEN_SUPER]           = { NULL,     NULL,    PREC_NONE },
