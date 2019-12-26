@@ -137,9 +137,8 @@ au3String *au3_tableFindString(au3Table *table, const char *chars, int length, u
             // Stop if we find an empty non-tombstone entry.                 
             if (AU3_IS_NULL(entry->value)) return NULL;
         }
-        else if (entry->key->length == length &&
-            entry->key->hash == hash &&
-            memcmp(entry->key->chars, chars, length) == 0) {
+        else if ((entry->key->length == length && entry->key->hash == hash)
+            || (memcmp(entry->key->chars, chars, length) == 0)) {
             // We found it.
             return entry->key;
         }

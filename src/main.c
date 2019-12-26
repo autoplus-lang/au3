@@ -55,5 +55,7 @@ int main(int argc, char *argv[])
         printf("\ndone in %3gs!\n", (clock() - clk) / (double)CLOCKS_PER_SEC);
     }
 
+    au3_close(vm);
+    free(source);
     return 0;
 }
