@@ -22,8 +22,14 @@ struct _au3Function {
     au3Object object;
     int arity;
     int upvalueCount;
+    au3Upvalue **upvalues;
     au3Chunk chunk;
     au3String *name;
+};
+
+struct _au3Upvalue {
+    au3Object object;
+    au3Value *location;
 };
 
 struct _au3Native {
@@ -52,6 +58,9 @@ au3String *au3_takeString(au3VM *vm, char *chars, int length);
 au3String *au3_copyString(au3VM *vm, const char *chars, int length);
 
 au3Function *au3_newFunction(au3VM *vm);
+void au3_makeClosure(au3Function *function);
+
+au3Upvalue *au3_newUpvalue(au3VM *vm, au3Value *slot);
 au3Native *au3_newNative(au3VM *vm, au3NativeFn function, const char *tips);
 
 const char *au3_typeofObject(au3Object *object);

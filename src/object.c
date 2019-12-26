@@ -83,6 +83,26 @@ au3Function *au3_newFunction(au3VM *vm)
     return function;
 }
 
+void au3_makeClosure(au3Function *function)
+{
+    int upvalueCount = function->upvalueCount;
+    au3Upvalue **upvalues = malloc(sizeof(au3Upvalue *) * upvalueCount);
+
+    for (int i = 0; i < upvalueCount; i++) {
+        upvalues[i] = NULL;
+    }
+
+    function->upvalues = upvalues;
+}
+
+au3Upvalue *au3_newUpvalue(au3VM *vm, au3Value *slot)
+{
+    au3Upvalue *upvalue = ALLOCATE_OBJ(au3Upvalue, AU3_TUPVALUE);
+    upvalue->location = slot;
+
+    return upvalue;
+}
+
 au3Native *au3_newNative(au3VM *vm, au3NativeFn function, const char *tips)
 {
     au3Native *native = ALLOCATE_OBJ(au3Native, AU3_TNATIVE);

@@ -147,6 +147,12 @@ static bool callValue(au3VM *vm, au3Value callee, int argCount)
     return false;
 }
 
+static au3Upvalue *captureUpvalue(au3VM *vm, au3Value *local)
+{
+    au3Upvalue* createdUpvalue = au3_newUpvalue(vm, local);
+    return createdUpvalue;
+}
+
 static au3Status execute(au3VM *vm)
 {
     register uint8_t *ip;
@@ -342,7 +348,29 @@ static au3Status execute(au3VM *vm)
 
         CASE_CODE(CLO) {
             au3Function *function = AU3_AS_FUNCTION(READ_CONST());
+            au3_makeClosure(function);
 
+            for (int i = 0; i < function->upvalueCount; i++) {
+                uint8_t isLocal = READ_BYTE();
+                uint8_t index = READ_BYTE();
+                if (isLocal) {
+                    function->upvalues[i] = captureUpvalue(vm, frame->slots + index);
+                }
+                else {
+                    function->upvalues[i] = frame->function->upvalues[index];
+                }
+            }
+
+            NEXT;
+        }
+        CASE_CODE(ULD) {
+            uint8_t slot = READ_BYTE();
+            PUSH(vm, *frame->function->upvalues[slot]->location);
+            NEXT;
+        }
+        CASE_CODE(UST) {
+            uint8_t slot = READ_BYTE();
+            *frame->function->upvalues[slot]->location = PEEK(vm, 0);
             NEXT;
         }
 
