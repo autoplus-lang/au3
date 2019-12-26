@@ -49,7 +49,7 @@ static bool isAtEnd()
 static void newLine()
 {
     lexer.line++;
-    lexer.position = 1;
+    lexer.position = 0;
 }
 
 static void tabIndent()

@@ -96,6 +96,8 @@ void au3_close(au3VM *vm)
 #define POP(vm)         *(--(vm)->top)
 #define PEEK(vm, i)     ((vm)->top[-1 - (i)])
 
+#define TYPEOF(v)       au3_typeofValue(v)
+
 static void concatenate(au3VM *vm)
 {
     au3String *b = AU3_AS_STRING(PEEK(vm, 0));
@@ -221,20 +223,73 @@ static au3Status execute(au3VM *vm)
 #define READ_CONST()    (frame->function->chunk.constants.values[READ_BYTE()])
 #define READ_STRING()   AU3_AS_STRING(READ_CONST())
 
-#define BINARY_OP(valueType, op) \
-    do { \
-        if (!AU3_IS_INTEGER(PEEK(vm, 0)) || !AU3_IS_INTEGER(PEEK(vm, 1))) { \
-            ERROR("Operands must be numbers."); \
-        } \
-        int64_t b = AU3_AS_INTEGER(POP(vm)); \
-        int64_t a = AU3_AS_INTEGER(POP(vm)); \
-        PUSH(vm, valueType(a op b)); \
-    } while (false)
-
 #define DISPATCH()      for (;;) switch (READ_BYTE())
 #define CASE_CODE(x)    case OP_##x:
 #define CASE_ERROR()    default:
 #define NEXT            continue
+
+#define BINARY_OP(op) \
+    do { \
+        switch (AU3_COMBINE(PEEK(vm, 1).type, PEEK(vm, 0).type)) { \
+            case AU3_TINT_INT: { \
+                int64_t b = AU3_AS_INTEGER(POP(vm)); \
+                int64_t a = AU3_AS_INTEGER(POP(vm)); \
+                PUSH(vm, AU3_INTEGER(a op b)); \
+                break; \
+            } \
+            case AU3_TNUM_NUM: { \
+                double b = AU3_AS_NUMBER(POP(vm)); \
+                double a = AU3_AS_NUMBER(POP(vm)); \
+                PUSH(vm, AU3_NUMBER(a op b)); \
+                break; \
+            } \
+            case AU3_TINT_NUM: { \
+                double b = AU3_AS_NUMBER(POP(vm)); \
+                int64_t a = AU3_AS_INTEGER(POP(vm)); \
+                PUSH(vm, AU3_NUMBER(a op b)); \
+                break; \
+            } \
+            case AU3_TNUM_INT: { \
+                int64_t b = AU3_AS_INTEGER(POP(vm)); \
+                double a = AU3_AS_NUMBER(POP(vm)); \
+                PUSH(vm, AU3_NUMBER(a op b)); \
+                break; \
+            } \
+            case AU3_TBOOL_BOOL: { \
+                char b = AU3_AS_BOOL(POP(vm)); \
+                char a = AU3_AS_BOOL(POP(vm)); \
+                PUSH(vm, AU3_INTEGER(a op b)); \
+                break; \
+            } \
+            case AU3_TBOOL_INT: { \
+                int64_t b = AU3_AS_INTEGER(POP(vm)); \
+                char a = AU3_AS_BOOL(POP(vm)); \
+                PUSH(vm, AU3_INTEGER(a op b)); \
+                break; \
+            } \
+            case AU3_TINT_BOOL: { \
+                char b = AU3_AS_BOOL(POP(vm)); \
+                int64_t a = AU3_AS_INTEGER(POP(vm)); \
+                PUSH(vm, AU3_INTEGER(a op b)); \
+                break; \
+            } \
+            case AU3_TBOOL_NUM: { \
+                double b = AU3_AS_NUMBER(POP(vm)); \
+                char a = AU3_AS_BOOL(POP(vm)); \
+                PUSH(vm, AU3_NUMBER(a op b)); \
+                break; \
+            } \
+            case AU3_TNUM_BOOL: { \
+                char b = AU3_AS_BOOL(POP(vm)); \
+                double a = AU3_AS_NUMBER(POP(vm)); \
+                PUSH(vm, AU3_NUMBER(a op b)); \
+                break; \
+            } \
+            default: {\
+                ERROR("Cannot perform '%s', got <%s> and <%s>.", #op, TYPEOF(PEEK(vm, 1)), TYPEOF(PEEK(vm, 0))); \
+            } \
+        } \
+    } while (false)
 
     LOAD_FRAME();
 
@@ -292,29 +347,19 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
         CASE_CODE(ADD) {
-            if (AU3_IS_STRING(PEEK(vm, 0)) && AU3_IS_STRING(PEEK(vm, 1))) {
-                concatenate(vm);
-            }
-            else if (AU3_IS_INTEGER(PEEK(vm, 0)) && AU3_IS_INTEGER(PEEK(vm, 1))) {
-                int64_t b = AU3_AS_INTEGER(POP(vm));
-                int64_t a = AU3_AS_INTEGER(POP(vm));
-                PUSH(vm, AU3_INTEGER(a + b));
-            }
-            else {
-                ERROR("Operands must be two numbers or two strings.");
-            }
+            BINARY_OP( + );
             NEXT;
         }
         CASE_CODE(SUB) {
-            BINARY_OP(AU3_INTEGER, - );
+            BINARY_OP( - );
             NEXT;
         }
         CASE_CODE(MUL) {
-            BINARY_OP(AU3_INTEGER, * );
+            BINARY_OP( * );
             NEXT;
         }
         CASE_CODE(DIV) {
-            BINARY_OP(AU3_INTEGER, / );
+            BINARY_OP( / );
             NEXT;
         }
 
@@ -329,11 +374,11 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
         CASE_CODE(LT) {
-            BINARY_OP(AU3_BOOL, < );
+            BINARY_OP( < );
             NEXT;
         }
         CASE_CODE(LE) {
-            BINARY_OP(AU3_BOOL, <= );
+            BINARY_OP( <= );
             NEXT;
         }
 
