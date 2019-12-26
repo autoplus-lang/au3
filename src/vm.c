@@ -71,7 +71,7 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
         CASE_ERROR() {
-            printf("Bad opcode, got %d!\n", READ_LAST());
+            runtimeError(vm, "Bad opcode, got %d!", READ_LAST());
             return AU3_RUNTIME_ERROR;
         }
     }
