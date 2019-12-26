@@ -58,6 +58,15 @@ typedef enum {
 
 } au3ValueTypes;
 
+typedef enum {
+    AU3_TSTRING_BOOL,
+    AU3_TSTRING_INT,
+    AU3_TSTRING_NUM,
+
+    AU3_TSTRING_STRING  = AU3_COMBINE(AU3_TSTRING, AU3_TSTRING),
+
+} au3ObjectValueTypes;
+
 typedef struct {
     au3ValueType type;
     union {

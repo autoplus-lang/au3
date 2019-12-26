@@ -98,24 +98,6 @@ void au3_close(au3VM *vm)
 
 #define TYPEOF(v)       au3_typeofValue(v)
 
-static void concatenate(au3VM *vm)
-{
-    au3String *b = AU3_AS_STRING(PEEK(vm, 0));
-    au3String *a = AU3_AS_STRING(PEEK(vm, 1));
-
-    int length = a->length + b->length;
-    char *chars = malloc(sizeof(char) * (length + 1));
-    memcpy(chars, a->chars, a->length);
-    memcpy(chars + a->length, b->chars, b->length);
-    chars[length] = '\0';
-
-    au3String *result = au3_takeString(vm, chars, length);
-
-    POP(vm);
-    POP(vm);
-    PUSH(vm, AU3_OBJECT(result));
-}
-
 static bool call(au3VM *vm, au3Function *function, int argCount)
 {
     if (argCount != function->arity) {
@@ -197,14 +179,36 @@ static void closeUpvalues(au3VM *vm, au3Value *last)
     }
 }
 
-static bool objectUnop(au3Object *object, au3Value *result)
+static bool unopObject(au3VM *vm, au3Object *o, au3Value *result)
 {
 
 }
 
-static bool objectBinop(au3Object *object, au3Value value, au3Value *result)
+static bool binopObjectValue(au3VM *vm, au3Object *o, au3Value v, au3Value *result)
 {
 
+    return false;
+}
+
+static bool binopObjectObject(au3VM *vm, au3Object *a, au3Object *b, au3Value *result)
+{
+    switch (AU3_COMBINE(a->type, b->type)) {
+        case AU3_TSTRING_STRING: {
+            au3String *s1 = (au3String *)a;
+            au3String *s2 = (au3String *)b;
+
+            int length = s1->length + s2->length;
+            char *chars = malloc(sizeof(char) * (length + 1));
+            memcpy(chars, s1->chars, s1->length);
+            memcpy(chars + s1->length, s2->chars, s2->length);
+            chars[length] = '\0';
+
+            *result = AU3_OBJECT(au3_takeString(vm, chars, length));
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static au3Status execute(au3VM *vm)
@@ -298,7 +302,7 @@ static au3Status execute(au3VM *vm)
             case AU3_TOBJ_INT: \
             case AU3_TOBJ_NUM: { \
                 au3Value result; \
-                if (objectBinop(AU3_AS_OBJECT(PEEK(vm, 1)), PEEK(vm, 0), &result)) { \
+                if (binopObjectValue(vm, AU3_AS_OBJECT(PEEK(vm, 1)), PEEK(vm, 0), &result)) { \
                     POP(vm); POP(vm); PUSH(vm, result); \
                     NEXT; \
                 } \
@@ -306,10 +310,17 @@ static au3Status execute(au3VM *vm)
             } \
             case AU3_TBOOL_OBJ: \
             case AU3_TINT_OBJ: \
-            case AU3_TNUM_OBJ: \
+            case AU3_TNUM_OBJ: { \
+                au3Value result; \
+                if (binopObjectValue(vm, AU3_AS_OBJECT(PEEK(vm, 0)), PEEK(vm, 1), &result)) { \
+                    POP(vm); POP(vm); PUSH(vm, result); \
+                    NEXT; \
+                } \
+                break; \
+            } \
             case AU3_TOBJ_OBJ: { \
                 au3Value result; \
-                if (objectBinop(AU3_AS_OBJECT(PEEK(vm, 0)), PEEK(vm, 1), &result)) { \
+                if (binopObjectObject(vm, AU3_AS_OBJECT(PEEK(vm, 1)), AU3_AS_OBJECT(PEEK(vm, 0)), &result)) { \
                     POP(vm); POP(vm); PUSH(vm, result); \
                     NEXT; \
                 } \
