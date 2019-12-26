@@ -92,6 +92,15 @@ static au3Status execute(au3VM *vm)
 #define NEXT            continue
 
     DISPATCH() {
+
+        CASE_CODE(NOP) NEXT;
+
+        CASE_CODE(PUTS) {
+            au3_printValue(POP(vm));
+            printf("\n");
+            NEXT;
+        }
+
         CASE_CODE(RET) {
 
             return AU3_OK;

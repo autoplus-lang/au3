@@ -9,6 +9,8 @@ typedef enum {
 
     OP_NOP,
 
+    OP_PUTS,
+
     OP_RET,
 
     OP_NULL,

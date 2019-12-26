@@ -24,6 +24,13 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
     uint8_t instruction = chunk->code[offset];
 
     switch (instruction) {
+
+        case OP_NOP:
+            return simpleInstruction("OP_NOP", offset);
+
+        case OP_PUTS:
+            return simpleInstruction("OP_PUTS", offset);
+
         case OP_RET:
             return simpleInstruction("OP_RET", offset);
 

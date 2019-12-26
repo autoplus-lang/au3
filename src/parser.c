@@ -98,6 +98,18 @@ static void consume(au3TokenType type, const char* message)
     errorAtCurrent(message);
 }
 
+static bool check(au3TokenType type)
+{
+    return parser.current.type == type;
+}
+
+static bool match(au3TokenType type)
+{
+    if (!check(type)) return false;
+    advance();
+    return true;
+}
+
 static void emitByte(uint8_t byte)
 {
     au3_writeChunk(currentChunk(),
@@ -141,6 +153,8 @@ static void endCompiler()
 }
 
 static void expression();
+static void statement();
+static void declaration();
 static ParseRule *getRule(au3TokenType type);
 static void parsePrecedence(Precedence precedence);
 
@@ -293,6 +307,26 @@ static void expression()
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void printStatement()
+{
+    expression();
+    consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+
+    emitByte(OP_PUTS);
+}
+
+static void declaration()
+{
+    statement();
+}
+
+static void statement()
+{
+    if (match(TOKEN_PRINT)) {
+        printStatement();
+    }
+}
+
 bool au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
 {
     au3_initLexer(source);
@@ -303,8 +337,10 @@ bool au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
     parser.panicMode = false;
 
     advance();
-    expression();
-    consume(TOKEN_EOF, "Expect end of expression.");
+
+    while (!match(TOKEN_EOF)) {
+        declaration();
+    }
 
     endCompiler();
 
