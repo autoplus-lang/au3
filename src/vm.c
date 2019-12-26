@@ -32,6 +32,7 @@ void au3_close(au3VM *vm)
 
 #define PUSH(vm, v)     *((vm)->top++) = (v)
 #define POP(vm)         *(--(vm)->top)
+#define PEEK(vm, i)     ((vm)->top[-1 - (i)])
 
 static au3Status execute(au3VM *vm)
 {
