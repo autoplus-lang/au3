@@ -39,6 +39,8 @@ typedef struct {
     int column;
 } au3Token;
 
+#define AU3_MAX_CONST   255
+
 void au3_initLexer(const char *source);
 au3Token au3_scanToken();
 
