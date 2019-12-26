@@ -27,6 +27,23 @@ typedef struct {
     };
 } au3Value;
 
+#define AU3_NULL            ((au3Value){ AU3_TNULL })
+#define AU3_BOOL(b)         ((au3Value){ AU3_TBOOL, .boolean = (b) })
+#define AU3_INTEGER(i)      ((au3Value){ AU3_TINTEGER, .integer = (i) })
+#define AU3_NUMBER(n)       ((au3Value){ AU3_TNUMBER, .number = (n) })
+#define AU3_OBJECT(o)       ((au3Value){ AU3_TOBJECT, .object = (au3Object *)(o) })
+
+#define AU3_AS_BOOL(v)      ((v).boolean)                       
+#define AU3_AS_INTEGER(v)   ((v).integer)
+#define AU3_AS_NUMBER(v)    ((v).number)
+#define AU3_AS_OBJECT(v)    ((v).object)
+
+#define AU3_IS_NULL(v)      ((v).type == AU3_TNULL)
+#define AU3_IS_BOOL(v)      ((v).type == AU3_TBOOL)
+#define AU3_IS_INTEGER(v)   ((v).type == AU3_TINTEGER)
+#define AU3_IS_NUMBER(v)    ((v).type == AU3_TNUMBER)
+#define AU3_IS_OBJECT(v)    ((v).type == AU3_TOBJECT)
+
 typedef struct {
     int count;
     int capacity;
