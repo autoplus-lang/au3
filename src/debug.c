@@ -26,6 +26,21 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
     switch (instruction) {
         case OP_RET:
             return simpleInstruction("OP_RET", offset);
+
+        case OP_NEG:
+            return simpleInstruction("OP_NEG", offset);
+        case OP_ADD:
+            return simpleInstruction("OP_ADD", offset);
+        case OP_SUB:
+            return simpleInstruction("OP_SUB", offset);
+        case OP_MUL:
+            return simpleInstruction("OP_MUL", offset);
+        case OP_DIV:
+            return simpleInstruction("OP_DIV", offset);
+
+        case OP_NOT:
+            return simpleInstruction("OP_NOT", offset);
+
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;
