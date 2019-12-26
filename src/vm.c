@@ -224,7 +224,18 @@ static au3Status execute(au3VM *vm)
                 runtimeError(vm, "Undefined variable '%s'.", name->chars);
                 return AU3_RUNTIME_ERROR;
             }
-            break;
+            NEXT;
+        }
+
+        CASE_CODE(LD) {
+            uint8_t slot = READ_BYTE();
+            PUSH(vm, vm->stack[slot]);
+            NEXT;
+        }
+        CASE_CODE(ST) {
+            uint8_t slot = READ_BYTE();
+            vm->stack[slot] = PEEK(vm, 0);
+            NEXT;
         }
 
         CASE_ERROR() {

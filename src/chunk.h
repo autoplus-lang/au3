@@ -44,6 +44,9 @@ typedef enum {
     OP_GLD,
     OP_GST,
 
+    OP_LD,
+    OP_ST,
+
 } au3Opcode;
 
 typedef struct {
