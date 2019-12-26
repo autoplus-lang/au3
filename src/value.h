@@ -4,7 +4,8 @@
 
 #include "common.h"
 
-typedef struct _au3Object *au3Object;
+typedef struct _au3Object au3Object;
+typedef struct _au3String au3String;
 
 typedef enum {
     AU3_TNULL,
@@ -12,10 +13,11 @@ typedef enum {
     AU3_TINTEGER,
     AU3_TNUMBER,
     AU3_TOBJECT,
-
-    AU3_TSTRING,
-
 } au3ValueType;
+
+typedef enum {
+    AU3_TSTRING = AU3_TOBJECT,
+} au3ObjectType;
 
 typedef struct {
     au3ValueType type;
