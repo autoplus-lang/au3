@@ -30,6 +30,8 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
 
         case OP_PUTS:
             return simpleInstruction("OP_PUTS", offset);
+        case OP_POP:
+            return simpleInstruction("OP_POP", offset);
 
         case OP_RET:
             return simpleInstruction("OP_RET", offset);

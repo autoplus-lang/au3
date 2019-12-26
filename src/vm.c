@@ -100,6 +100,10 @@ static au3Status execute(au3VM *vm)
             printf("\n");
             NEXT;
         }
+        CASE_CODE(POP) {
+            POP(vm);
+            NEXT;
+        }
 
         CASE_CODE(RET) {
 

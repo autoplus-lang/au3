@@ -10,6 +10,7 @@ typedef enum {
     OP_NOP,
 
     OP_PUTS,
+    OP_POP,
 
     OP_RET,
 
