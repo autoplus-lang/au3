@@ -38,6 +38,7 @@ typedef struct {
 
 static Parser parser;
 static au3Chunk *compilingChunk;
+static au3VM *runningVM;
 
 static au3Chunk *currentChunk()
 {
@@ -196,7 +197,7 @@ static void number()
 
 static void string()
 {
-    emitConstant(AU3_OBJECT(au3_copyString(parser.previous.start + 1,
+    emitConstant(AU3_OBJECT(au3_copyString(runningVM, parser.previous.start + 1,
         parser.previous.length - 2)));
 }
 
@@ -292,10 +293,11 @@ static void expression()
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
-bool au3_compile(const char *source, au3Chunk *chunk)
+bool au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
 {
     au3_initLexer(source);
     compilingChunk = chunk;
+    runningVM = vm;
 
     parser.hadError = false;
     parser.panicMode = false;

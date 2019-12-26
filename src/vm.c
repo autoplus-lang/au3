@@ -63,7 +63,7 @@ static void concatenate(au3VM *vm)
     memcpy(chars + a->length, b->chars, b->length);
     chars[length] = '\0';
 
-    au3String *result = au3_takeString(chars, length);
+    au3String *result = au3_takeString(vm, chars, length);
     PUSH(vm, AU3_OBJECT(result));
 }
 
