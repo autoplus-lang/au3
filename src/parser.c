@@ -114,7 +114,7 @@ static void emitReturn()
 
 static uint8_t makeConstant(au3Value value)
 {
-    int constant = addConstant(currentChunk(), value);
+    int constant = au3_addConstant(currentChunk(), value);
     if (constant > AU3_MAX_CONST) {
         error("Too many constants in one chunk.");
         return 0;
@@ -170,7 +170,7 @@ static void grouping()
 static void number()
 {
     double value = strtod(parser.previous.start, NULL);
-    emitConstant(value);
+    emitConstant(AU3_NUMBER(value));
 }
 
 static void unary()
