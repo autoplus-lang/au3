@@ -71,6 +71,8 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
             return constantInstruction("OP_DEF", chunk, offset);
         case OP_GLD:
             return constantInstruction("OP_GLD", chunk, offset);
+        case OP_GST:
+            return constantInstruction("OP_GST", chunk, offset);
 
         default:
             printf("Unknown opcode %d\n", instruction);

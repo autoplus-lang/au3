@@ -42,6 +42,7 @@ typedef enum {
 
     OP_DEF,
     OP_GLD,
+    OP_GST,
 
 } au3Opcode;
 

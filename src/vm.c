@@ -191,7 +191,7 @@ static au3Status execute(au3VM *vm)
             au3String *name = READ_STRING();
             au3_tableSet(&vm->globals, name, PEEK(vm, 0));
             POP(vm);
-            break;
+            NEXT;
         }
         CASE_CODE(GLD) {
             au3String *name = READ_STRING();
@@ -201,6 +201,15 @@ static au3Status execute(au3VM *vm)
                 return AU3_RUNTIME_ERROR;
             }
             PUSH(vm, value);
+            NEXT;
+        }
+        CASE_CODE(GST) {
+            au3String *name = READ_STRING();
+            if (au3_tableSet(&vm->globals, name, PEEK(vm, 0))) {
+                au3_tableDelete(&vm->globals, name);
+                runtimeError(vm, "Undefined variable '%s'.", name->chars);
+                return AU3_RUNTIME_ERROR;
+            }
             break;
         }
 
