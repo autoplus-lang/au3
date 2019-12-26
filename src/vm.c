@@ -65,6 +65,15 @@ static au3Status execute(au3VM *vm)
 
             return AU3_OK;
         }
+        CASE_CODE(NEG) {
+            if (!AU3_IS_NUMBER(PEEK(vm, 0))) {
+                runtimeError(vm, "Operand must be a number.");
+                return AU3_RUNTIME_ERROR;
+            }
+
+            PUSH(vm, AU3_NUMBER(-AU3_AS_NUMBER(POP(vm))));
+            NEXT;
+        }
         CASE_CODE(CONST) {
             au3Value value = READ_CONST();
             PUSH(vm, value);
