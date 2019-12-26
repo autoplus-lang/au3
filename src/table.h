@@ -18,5 +18,9 @@ typedef struct {
 
 void au3_initTable(au3Table *table);
 void au3_freeTable(au3Table *table);
+bool au3_tableGet(au3Table *table, au3String *key, au3Value *value);
+bool au3_tableSet(au3Table *table, au3String *key, au3Value value);
+bool au3_tableDelete(au3Table *table, au3String *key);
+void au3_tableAddAll(au3Table *from, au3Table *to);
 
 #endif
