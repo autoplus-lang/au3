@@ -4,16 +4,12 @@
 
 #include "chunk.h"
 #include "table.h"
-#include "compiler.h"
 
 typedef struct {
     au3Function *function;
     uint8_t *ip;
     au3Value *slots;
 } au3CallFrame;
-
-#define AU3_MAX_FRAMES  64
-#define AU3_MAX_STACK   (AU3_MAX_FRAMES * AU3_MAX_LOCALS)
 
 typedef struct {
 
