@@ -8,6 +8,9 @@
 #include "object.h"
 #include "memory.h"
 
+static au3VM firstVM;
+static au3VM *g_pVM = NULL;
+
 static void resetStack(au3VM *vm)
 {
     vm->top = vm->stack;
@@ -30,26 +33,37 @@ static void runtimeError(au3VM *vm, const char *format, ...)
 
 au3VM *au3_create()
 {
-    au3VM *vm = calloc(sizeof(au3VM), 1);
-
-    if (vm != NULL) {
-        vm->objects = NULL;
-        au3_initTable(&vm->globals);
-        au3_initTable(&vm->strings);
-        resetStack(vm);
+    au3VM *vm;
+    
+    if (g_pVM == NULL) {
+        vm = &firstVM;
+        g_pVM = vm;
     }
+    else {
+        vm = calloc(sizeof(au3VM), 1);
+        if (vm == NULL) return NULL;
+    }
+    
+    vm->objects = NULL;
+    au3_initTable(&vm->globals);
+    au3_initTable(&vm->strings);
 
+    resetStack(vm);
     return vm;
 }
 
 void au3_close(au3VM *vm)
 {
-    if (vm != NULL) {
-        au3_freeTable(&vm->globals);
-        au3_freeTable(&vm->strings);
-        au3_freeObjects(vm);
-        free(vm);
+    if (vm != NULL && g_pVM != NULL) {
+        vm = g_pVM;
     }
+    
+    au3_freeTable(&vm->globals);
+    au3_freeTable(&vm->strings);
+    au3_freeObjects(vm);
+
+    if (vm != g_pVM) free(vm);
+    else g_pVM = NULL;
 }
 
 #define PUSH(vm, v)     *((vm)->top++) = (v)
