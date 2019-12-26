@@ -15,12 +15,15 @@ const char *au3_typeofValue(au3Value value)
             return "integer";
         case AU3_TNUMBER:
             return "number";
+        case AU3_TOBJECT:
+            return au3_typeofObject(AU3_AS_OBJECT(value));
     }
 }
 
 void au3_printValue(au3Value value)
 {
     switch (value.type) {
+        default:
         case AU3_TNULL:
             printf("null");
             break;
@@ -32,6 +35,9 @@ void au3_printValue(au3Value value)
             break;
         case AU3_TNUMBER:
             printf("%.14g", AU3_AS_NUMBER(value));
+            break;
+        case AU3_TOBJECT:
+            au3_printObject(AU3_AS_OBJECT(value));
             break;
     }
 }

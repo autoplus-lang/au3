@@ -28,4 +28,7 @@ static inline bool au3_isObjType(au3Value value, au3ObjectType type)
 
 au3String *au3_copyString(const char *chars, int length);
 
+const char *au3_typeofObject(au3Object *object);
+void au3_printObject(au3Object *object);
+
 #endif

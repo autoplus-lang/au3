@@ -33,3 +33,30 @@ au3String *au3_copyString(const char *chars, int length)
 
     return allocateString(heapChars, length);
 }
+
+#define OBJECT_TYPE(o)  ((o)->type)
+
+#define AS_STRING(o)    ((au3String *)(o))
+#define AS_CSTRING(o)   (((au3String *)(o))->chars)
+
+void au3_printObject(au3Object *object)
+{
+    switch (OBJECT_TYPE(object)) {
+        case AU3_TSTRING:
+            printf("%s", AS_CSTRING(object));
+            break;
+        default:
+            printf("object: %p", object);
+            break;
+    }
+}
+
+const char *au3_typeofObject(au3Object *object)
+{
+    switch (OBJECT_TYPE(object)) {
+        case AU3_TSTRING:
+            return "string";
+        default:
+            return "object";
+    }
+}
