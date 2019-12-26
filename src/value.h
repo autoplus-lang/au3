@@ -6,6 +6,7 @@
 
 typedef struct _au3Object au3Object;
 typedef struct _au3String au3String;
+typedef struct _au3Function au3Function;
 
 typedef enum {
     AU3_TNULL,
@@ -17,6 +18,7 @@ typedef enum {
 
 typedef enum {
     AU3_TSTRING = AU3_TOBJECT,
+    AU3_TFUNCTION,
 } au3ObjectType;
 
 typedef struct {

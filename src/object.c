@@ -71,16 +71,40 @@ au3String *au3_copyString(au3VM *vm, const char *chars, int length)
     return allocateString(vm, heapChars, length, hash);
 }
 
+au3Function *au3_newFunction(au3VM *vm)
+{
+    au3Function *function = ALLOCATE_OBJ(au3Function, AU3_TFUNCTION);
+
+    function->arity = 0;
+    function->name = NULL;
+    au3_initChunk(&function->chunk);
+
+    return function;
+}
+
 #define OBJECT_TYPE(o)  ((o)->type)
 
 #define AS_STRING(o)    ((au3String *)(o))
 #define AS_CSTRING(o)   (((au3String *)(o))->chars)
+#define AS_FUNCTION(o)  ((au3Function *)(o))
+
+static void printFunction(au3Function *function)
+{
+    if (function->name == NULL) {
+        printf("<script>");
+        return;
+    }
+    printf("func: <%s>", function->name->chars);
+}
 
 void au3_printObject(au3Object *object)
 {
     switch (OBJECT_TYPE(object)) {
         case AU3_TSTRING:
             printf("%s", AS_CSTRING(object));
+            break;
+        case AU3_TFUNCTION:
+            printFunction(AS_FUNCTION(object));
             break;
         default:
             printf("object: %p", object);
