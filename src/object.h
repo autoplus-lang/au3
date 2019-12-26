@@ -26,6 +26,7 @@ static inline bool au3_isObjType(au3Value value, au3ObjectType type)
 #define AU3_AS_STRING(v)        ((au3String *)AU3_AS_OBJECT(v))         
 #define AU3_AS_CSTRING(v)       (((au3String *)AU3_AS_OBJECT(v))->chars)
 
+au3String *au3_takeString(char *chars, int length);
 au3String *au3_copyString(const char *chars, int length);
 
 const char *au3_typeofObject(au3Object *object);

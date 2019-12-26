@@ -25,6 +25,11 @@ static au3String *allocateString(char *chars, int length)
     return string;
 }
 
+au3String *takeString(char *chars, int length)
+{
+    return allocateString(chars, length);
+}
+
 au3String *au3_copyString(const char *chars, int length)
 {
     char *heapChars = malloc(sizeof(char) * (length + 1));
