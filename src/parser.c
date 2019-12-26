@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,7 +66,7 @@ static au3Chunk *currentChunk()
     return &current->function->chunk;
 }
 
-static void errorAt(au3Token *token, const char* message)
+static void errorAt(au3Token *token, const char *messagef, ...)
 {
     if (parser.panicMode) return;
     parser.panicMode = true;
@@ -82,19 +83,30 @@ static void errorAt(au3Token *token, const char* message)
         fprintf(stderr, " at '%.*s'", token->length, token->start);
     }
 
-    fprintf(stderr, ": %s\n", message);
+    fprintf(stderr, ": ");
+    va_list ap;
+    va_start(ap, messagef);
+    vfprintf(stderr, messagef, ap);
+    va_end(ap);
+    fprintf(stderr, "\n");
+
     parser.hadError = true;
 }
 
-static void error(const char *message)
-{
-    errorAt(&parser.previous, message);
-}
+#define error(msgf, ...) \
+	errorAt(&parser.previous, msgf, ##__VA_ARGS__)
 
-static void errorAtCurrent(const char *message)
-{
-    errorAt(&parser.current, message);
-}
+#define errorAtCurrent(msgf, ...) \
+	errorAt(&parser.current, msgf, ##__VA_ARGS__)
+
+#define consume(token_type, messagef, ...) \
+	do { \
+		if (parser.current.type == token_type) { \
+			advance(); \
+			break; \
+		} \
+		errorAt(&parser.current, messagef, ##__VA_ARGS__); \
+	} while(0)
 
 static void advance()
 {
@@ -106,16 +118,6 @@ static void advance()
 
         errorAtCurrent(parser.current.start);
     }
-}
-
-static void consume(au3TokenType type, const char* message)
-{
-    if (parser.current.type == type) {
-        advance();
-        return;
-    }
-
-    errorAtCurrent(message);
 }
 
 static bool check(au3TokenType type)
@@ -347,8 +349,8 @@ static uint8_t argumentList()
     if (!check(TOKEN_RIGHT_PAREN)) {
         do {
             expression();
-            if (argCount++ == 64) {
-                error("Cannot have more than 64 arguments.");
+            if (argCount++ == AU3_MAX_ARGS) {
+                error("Cannot have more than %d arguments.", AU3_MAX_ARGS);
             }
         } while (match(TOKEN_COMMA));
     }
@@ -661,8 +663,7 @@ static void ifStatement()
     bool hadParen = match(TOKEN_LEFT_PAREN);
     expression();
     if (hadParen) consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
-
-    consume(TOKEN_THEN, "Expect 'then' after condition.");
+    consume(TOKEN_THEN, "Expect 'then' after %s.", hadParen ? "')'" : "condition");
 
     int thenJump = emitJump(OP_JMPF);
     emitByte(OP_POP);
