@@ -45,6 +45,7 @@ typedef enum {
     TOKEN_FALSE,
     TOKEN_FOR,
     TOKEN_FUN,
+    TOKEN_GLOBAL,
     TOKEN_IF,
     TOKEN_NULL,
     TOKEN_OR,
