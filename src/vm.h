@@ -11,6 +11,8 @@ typedef struct {
     au3Value *top;
     au3Value stack[256];
 
+    au3Object *objects;
+
 } au3VM;
 
 typedef enum {

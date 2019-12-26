@@ -6,6 +6,7 @@
 #include "vm.h"
 #include "compiler.h"
 #include "object.h"
+#include "memory.h"
 
 static void resetStack(au3VM *vm)
 {
@@ -32,7 +33,7 @@ au3VM *au3_create()
     au3VM *vm = calloc(sizeof(au3VM), 1);
 
     if (vm != NULL) {
-
+        vm->objects = NULL;
         resetStack(vm);
     }
 
@@ -41,9 +42,10 @@ au3VM *au3_create()
 
 void au3_close(au3VM *vm)
 {
-    if (vm == NULL) return;
-
-    free(vm);
+    if (vm != NULL) {
+        au3_freeObjects(vm);
+        free(vm);
+    }
 }
 
 #define PUSH(vm, v)     *((vm)->top++) = (v)

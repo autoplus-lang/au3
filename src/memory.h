@@ -3,6 +3,7 @@
 #pragma once
 
 #include "common.h"
+#include "vm.h"
 
 #define AU3_GROW_CAPACITY(capacity) \
     ((capacity) < 8 ? 8 : (capacity) * 2)
@@ -16,6 +17,11 @@
 #define AU3_ALLOCATE(type, count) \
     (type *)au3_reallocate(NULL, 0, sizeof(type) * (count))
 
+#define AU3_FREE(type, pointer) \
+    au3_reallocate(pointer, sizeof(type), 0)
+
 void *au3_reallocate(void *previous, size_t oldSize, size_t newSize);
+
+void au3_freeObjects(au3VM *vm);
 
 #endif
