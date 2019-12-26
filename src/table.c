@@ -146,3 +146,22 @@ au3String *au3_tableFindString(au3Table *table, const char *chars, int length, u
         index = (index + 1) % table->capacity;
     }
 }
+
+void au3_tableRemoveWhite(au3Table *table)
+{
+    for (int i = 0; i < table->capacity; i++) {
+        au3Entry *entry = &table->entries[i];
+        if (entry->key != NULL && !entry->key->object.isMarked) {
+            au3_tableDelete(table, entry->key);
+        }
+    }
+}
+
+void au3_markTable(au3VM *vm, au3Table* table)
+{
+    for (int i = 0; i < table->capacity; i++) {
+        au3Entry *entry = &table->entries[i];
+        au3_markObject(vm, (au3Object *)entry->key);
+        au3_markValue(vm, entry->value);
+    }
+}

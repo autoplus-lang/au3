@@ -82,5 +82,6 @@ void au3_initLexer(const char *source);
 au3Token au3_scanToken();
 
 au3Function *au3_compile(au3VM *vm, const char *source);
+void au3_markCompilerRoots(au3VM *vm);
 
 #endif

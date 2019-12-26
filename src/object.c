@@ -11,8 +11,9 @@
 
 static au3Object *allocateObject(au3VM *vm, size_t size, au3ObjectType type)
 {
-    au3Object *object = (au3Object *)au3_reallocate(NULL, 0, size);
+    au3Object *object = (au3Object *)au3_reallocate(vm, NULL, 0, size);
     object->type = type;
+    object->isMarked = false;
 
     object->next = vm->objects;
     vm->objects = object;

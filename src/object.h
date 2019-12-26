@@ -8,6 +8,7 @@
 
 struct _au3Object {
     au3ObjectType type;
+    bool isMarked;
     struct _au3Object *next;
 };
 

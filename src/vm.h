@@ -22,7 +22,14 @@ typedef struct _au3VM {
     au3Table strings;
     au3Table globals;
     au3Upvalue *openUpvalues;
+
+    size_t bytesAllocated;
+    size_t nextGC;
+
     au3Object *objects;
+    int grayCount;
+    int grayCapacity;
+    au3Object **grayStack;
 
 } au3VM;
 

@@ -6,6 +6,7 @@
 #include "compiler.h"
 #include "vm.h"
 #include "object.h"
+#include "memory.h"
 #include "debug.h"
 
 typedef struct {
@@ -927,4 +928,13 @@ au3Function *au3_compile(au3VM *vm, const char *source)
 
     au3Function *function = endCompiler();
     return parser.hadError ? NULL : function;
+}
+
+void au3_markCompilerRoots(au3VM *vm)
+{
+    Compiler *compiler = current;
+    while (compiler != NULL) {
+        au3_markObject(vm, (au3Object *)compiler->function);
+        compiler = compiler->enclosing;
+    }
 }

@@ -24,4 +24,7 @@ bool au3_tableDelete(au3Table *table, au3String *key);
 void au3_tableAddAll(au3Table *from, au3Table *to);
 au3String *au3_tableFindString(au3Table *table, const char *chars, int length, uint32_t hash);
 
+void au3_tableRemoveWhite(au3Table* table);
+void au3_markTable(au3VM *vm,au3Table *table);
+
 #endif
