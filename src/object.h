@@ -14,6 +14,7 @@ struct _au3String {
     au3Object object;
     int length;
     char *chars;
+    uint32_t hash;
 };
 
 static inline bool au3_isObjType(au3Value value, au3ObjectType type)

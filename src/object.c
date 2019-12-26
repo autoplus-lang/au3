@@ -19,27 +19,46 @@ static au3Object *allocateObject(au3VM *vm, size_t size, au3ObjectType type)
     return object;
 }
 
-static au3String *allocateString(au3VM *vm, char *chars, int length)
+static au3String *allocateString(au3VM *vm, char *chars, int length, uint32_t hash)
 {
     au3String *string = ALLOCATE_OBJ(au3String, AU3_TSTRING);
     string->length = length;
     string->chars = chars;
+    string->hash = hash;
 
     return string;
 }
 
+static uint32_t hashString(const char* key, int length)
+{
+    static const uint32_t basis = 2166136261u;
+    static const uint32_t prime = 16777619;
+
+    uint32_t hash = basis;
+
+    for (int i = 0; i < length; i++) {
+        hash ^= key[i];
+        hash *= prime;
+    }
+
+    return hash;
+}
+
 au3String *au3_takeString(au3VM *vm, char *chars, int length)
 {
-    return allocateString(vm, chars, length);
+    uint32_t hash = hashString(chars, length);
+    return allocateString(vm, chars, length, hash);
 }
 
 au3String *au3_copyString(au3VM *vm, const char *chars, int length)
 {
+    uint32_t hash = hashString(chars, length);
+
     char *heapChars = malloc(sizeof(char) * (length + 1));
     memcpy(heapChars, chars, length);
     heapChars[length] = '\0';
 
-    return allocateString(vm, heapChars, length);
+    return allocateString(vm, heapChars, length, hash);
 }
 
 #define OBJECT_TYPE(o)  ((o)->type)
