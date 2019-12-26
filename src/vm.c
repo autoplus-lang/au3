@@ -55,6 +55,17 @@ static au3Status execute(au3VM *vm)
 #define READ_LAST()     (vm->ip[-1])
 #define READ_CONST()    (vm->chunk->constants.values[READ_BYTE()])
 
+#define BINARY_OP(valueType, op) \
+    do { \
+        if (!AU3_IS_NUMBER(PEEK(vm, 0)) || !AU3_IS_NUMBER(PEEK(vm, 1))) { \
+            runtimeError(vm, "Operands must be numbers."); \
+            return AU3_RUNTIME_ERROR; \
+        } \
+        double b = AU3_AS_NUMBER(POP(vm)); \
+        double a = AU3_AS_NUMBER(POP(vm)); \
+        PUSH(vm, valueType(a op b)); \
+    } while (false)
+
 #define DISPATCH()      for (;;) switch (READ_BYTE())
 #define CASE_CODE(x)    case OP_##x:
 #define CASE_ERROR()    default:
@@ -72,6 +83,22 @@ static au3Status execute(au3VM *vm)
             }
 
             PUSH(vm, AU3_NUMBER(-AU3_AS_NUMBER(POP(vm))));
+            NEXT;
+        }
+        CASE_CODE(ADD) {
+            BINARY_OP(AU3_NUMBER, +);
+            NEXT;
+        }
+        CASE_CODE(SUB) {
+            BINARY_OP(AU3_NUMBER, -);
+            NEXT;
+        }
+        CASE_CODE(MUL) {
+            BINARY_OP(AU3_NUMBER, *);
+            NEXT;
+        }
+        CASE_CODE(DIV) {
+            BINARY_OP(AU3_NUMBER, /);
             NEXT;
         }
         CASE_CODE(CONST) {
