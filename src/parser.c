@@ -166,7 +166,7 @@ static void literal()
 {
     switch (parser.previous.type) {
         case TOKEN_FALSE:   emitByte(OP_FALSE); break;
-        case TOKEN_NIL:     emitByte(OP_NULL); break;
+        case TOKEN_NULL:    emitByte(OP_NULL); break;
         case TOKEN_TRUE:    emitByte(OP_TRUE); break;
         default:
             return; // Unreachable.                   
@@ -230,7 +230,7 @@ static ParseRule rules[] = {
     { NULL,     NULL,    PREC_NONE },       // TOKEN_FOR             
     { NULL,     NULL,    PREC_NONE },       // TOKEN_FUN             
     { NULL,     NULL,    PREC_NONE },       // TOKEN_IF              
-    { literal,  NULL,    PREC_NONE },       // TOKEN_NIL             
+    { literal,  NULL,    PREC_NONE },       // TOKEN_NULL        
     { NULL,     NULL,    PREC_NONE },       // TOKEN_OR              
     { NULL,     NULL,    PREC_NONE },       // TOKEN_PRINT           
     { NULL,     NULL,    PREC_NONE },       // TOKEN_RETURN          
