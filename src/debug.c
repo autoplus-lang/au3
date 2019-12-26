@@ -64,6 +64,8 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
 
         case OP_RET:
             return simpleInstruction("OP_RET", offset);
+        case OP_CALL:
+            return byteInstruction("OP_CALL", chunk, offset);
 
         case OP_NEG:
             return simpleInstruction("OP_NEG", offset);

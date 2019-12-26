@@ -13,6 +13,7 @@ typedef enum {
     OP_POP,
 
     OP_RET,
+    OP_CALL,
 
     OP_NULL,
     OP_TRUE,

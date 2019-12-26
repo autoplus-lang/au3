@@ -25,11 +25,21 @@ static void runtimeError(au3VM *vm, const char *format, ...)
     va_end(args);
     fputs("\n", stderr);
 
-    au3CallFrame* frame = &vm->frames[vm->frameCount - 1];
-    size_t instruction = frame->ip - frame->function->chunk.code;
-    int line = frame->function->chunk.lines[instruction];
-    int column = frame->function->chunk.columns[instruction];
-    fprintf(stderr, "[%d:%d] in script\n", line, column);
+    for (int i = vm->frameCount - 1; i >= 0; i--) {
+        au3CallFrame *frame = &vm->frames[i];
+        au3Function *function = frame->function;
+        // -1 because the IP is sitting on the next instruction to be
+        // executed.                                                 
+        size_t instruction = frame->ip - function->chunk.code - 1;
+        fprintf(stderr, "[%d:%d] in ",
+            function->chunk.lines[instruction], function->chunk.columns[instruction]);
+        if (function->name == NULL) {
+            fprintf(stderr, "script\n");
+        }
+        else {
+            fprintf(stderr, "%s()\n", function->name->chars);
+        }
+    }
 
     resetStack(vm);
 }
@@ -88,6 +98,44 @@ static void concatenate(au3VM *vm)
     PUSH(vm, AU3_OBJECT(result));
 }
 
+static bool call(au3VM *vm, au3Function *function, int argCount)
+{
+    if (argCount != function->arity) {
+        runtimeError(vm, "Expected %d arguments but got %d.",
+            function->arity, argCount);
+        return false;
+    }
+
+    if (vm->frameCount == AU3_MAX_FRAMES) {
+        runtimeError(vm, "Stack overflow.");
+        return false;
+    }
+
+    au3CallFrame *frame = &vm->frames[vm->frameCount++];
+    frame->function = function;
+    frame->ip = function->chunk.code;
+
+    frame->slots = vm->top - argCount - 1;
+    return true;
+}
+
+static bool callValue(au3VM *vm, au3Value callee, int argCount)
+{
+    if (AU3_IS_OBJECT(callee)) {
+        switch (AU3_OBJECT_TYPE(callee)) {
+            case AU3_TFUNCTION:
+                return call(vm, AU3_AS_FUNCTION(callee), argCount);
+
+            default:
+                // Non-callable object type.                   
+                break;
+            }
+    }
+
+    runtimeError(vm, "Can only call functions and classes.");
+    return false;
+}
+
 static au3Status execute(au3VM *vm)
 {
     au3CallFrame *frame = &vm->frames[vm->frameCount - 1];
@@ -132,6 +180,15 @@ static au3Status execute(au3VM *vm)
         CASE_CODE(RET) {
 
             return AU3_OK;
+        }
+        CASE_CODE(CALL) {
+            int argCount = READ_BYTE();
+            if (!callValue(vm, PEEK(vm, argCount), argCount)) {
+                return AU3_RUNTIME_ERROR;
+            }
+
+            frame = &vm->frames[vm->frameCount - 1];
+            NEXT;
         }
 
         CASE_CODE(NEG) {
@@ -276,10 +333,7 @@ au3Status au3_interpret(au3VM *vm, const char *source)
     if (function == NULL) return AU3_COMPILE_ERROR;
 
     PUSH(vm, AU3_OBJECT(function));
-    au3CallFrame *frame = &vm->frames[vm->frameCount++];
-    frame->function = function;
-    frame->ip = function->chunk.code;
-    frame->slots = vm->stack;
+    callValue(vm, AU3_OBJECT(function), 0);
 
    return execute(vm);
 }
