@@ -142,7 +142,7 @@ static void emitReturn()
 static uint8_t makeConstant(au3Value value)
 {
     int constant = au3_addConstant(currentChunk(), value);
-    if (constant > AU3_MAX_CONST) {
+    if (constant > AU3_MAX_CONSTS - 1) {
         error("Too many constants in one chunk.");
         return 0;
     }
