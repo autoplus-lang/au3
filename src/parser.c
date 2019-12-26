@@ -41,7 +41,15 @@ typedef struct {
     int depth;
 } Local;
 
+typedef enum {
+    TYPE_FUNCTION,
+    TYPE_SCRIPT
+} FunctionType;
+
 typedef struct Compiler {
+    au3Function *function;
+    FunctionType type;
+
     Local locals[AU3_MAX_LOCALS];
     int localCount;
     int scopeDepth;
@@ -49,12 +57,11 @@ typedef struct Compiler {
 
 static Parser parser;
 static Compiler *current = NULL;
-static au3Chunk *compilingChunk;
 static au3VM *runningVM;
 
 static au3Chunk *currentChunk()
 {
-    return compilingChunk;
+    return &current->function->chunk;
 }
 
 static void errorAt(au3Token *token, const char* message)
@@ -187,21 +194,34 @@ static void patchJump(int offset)
     currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
-static void initCompiler(Compiler *compiler)
+static void initCompiler(Compiler *compiler, FunctionType type)
 {
+    compiler->function = NULL;
+    compiler->type = type;
     compiler->localCount = 0;
     compiler->scopeDepth = 0;
+    compiler->function = au3_newFunction(runningVM);
+
     current = compiler;
+
+    Local *local = &current->locals[current->localCount++];
+    local->depth = 0;
+    local->name.start = "";
+    local->name.length = 0;
 }
 
-static void endCompiler()
+static au3Function *endCompiler()
 {
     emitReturn();
+    au3Function *function = current->function;
 
     if (!parser.hadError) {
-        au3_disassembleChunk(currentChunk(), "code");
+        au3_disassembleChunk(currentChunk(),
+            function->name != NULL ? function->name->chars : "<script>");
         printf("==========\n\n");
     }
+
+    return function;
 }
 
 static void beginScope()
@@ -656,15 +676,13 @@ static void statement()
     }
 }
 
-bool au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
+au3Function *au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
 {
     au3_initLexer(source);
     Compiler compiler;
-    initCompiler(&compiler);
+    initCompiler(&compiler, TYPE_SCRIPT);
 
-    compilingChunk = chunk;
     runningVM = vm;
-
     parser.hadError = false;
     parser.panicMode = false;
 
@@ -674,7 +692,6 @@ bool au3_compile(au3VM *vm, const char *source, au3Chunk *chunk)
         declaration();
     }
 
-    endCompiler();
-
-    return !parser.hadError;
+    au3Function *function = endCompiler();
+    return parser.hadError ? NULL : function;
 }
