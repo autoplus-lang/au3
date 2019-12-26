@@ -314,21 +314,14 @@ static au3Status execute(au3VM *vm)
         }
         CASE_CODE(GLD) {
             au3String *name = READ_STRING();
-            au3Value value;
-            if (!au3_tableGet(&vm->globals, name, &value)) {
-                ERROR("Undefined variable '%s'.", name->chars);
-                return AU3_RUNTIME_ERROR;
-            }
+            au3Value value = AU3_NULL;
+            au3_tableGet(&vm->globals, name, &value);
             PUSH(vm, value);
             NEXT;
         }
         CASE_CODE(GST) {
             au3String *name = READ_STRING();
-            if (au3_tableSet(&vm->globals, name, PEEK(vm, 0))) {
-                au3_tableDelete(&vm->globals, name);
-                ERROR("Undefined variable '%s'.", name->chars);
-                return AU3_RUNTIME_ERROR;
-            }
+            au3_tableSet(&vm->globals, name, PEEK(vm, 0));
             NEXT;
         }
 
