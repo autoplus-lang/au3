@@ -632,7 +632,10 @@ static void function(FunctionType type)
 
     // Create the function object.                                
     au3Function *function = endCompiler();
-    emitBytes(OP_CONST, makeConstant(AU3_OBJECT(function)));
+
+    uint8_t constant = makeConstant(AU3_OBJECT(function));
+    emitBytes(OP_CLO, constant);
+    emitBytes(OP_CONST, constant);
 }
 
 static void funDeclaration()

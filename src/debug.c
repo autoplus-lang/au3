@@ -107,6 +107,16 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
         case OP_ST:
             return byteInstruction("OP_ST", chunk, offset);
 
+        case OP_CLO: {
+            offset++;
+            uint8_t constant = chunk->code[offset++];
+            printf("%-16s %4d ", "OP_CLO", constant);
+            au3_printValue(chunk->constants.values[constant]);
+            printf("\n");
+
+            return offset;
+        }
+
         case OP_JMP:
             return jumpInstruction("OP_JMP", 1, chunk, offset);
         case OP_JMPF:

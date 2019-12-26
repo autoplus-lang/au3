@@ -340,6 +340,12 @@ static au3Status execute(au3VM *vm)
             NEXT;
         }
 
+        CASE_CODE(CLO) {
+            au3Function *function = AU3_AS_FUNCTION(READ_CONST());
+
+            NEXT;
+        }
+
         CASE_CODE(JMP) {
             uint16_t offset = READ_SHORT();
             ip += offset;

@@ -49,6 +49,8 @@ typedef enum {
     OP_LD,
     OP_ST,
 
+    OP_CLO,
+
     OP_JMP,
     OP_JMPF,
     OP_LOOP,
