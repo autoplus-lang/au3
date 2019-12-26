@@ -4,11 +4,28 @@
 
 #include "common.h"
 
+typedef struct _au3Object *au3Object;
+
 typedef enum {
-    AU3_TNUMBER
+    AU3_TNULL,
+    AU3_TBOOL,
+    AU3_TINTEGER,
+    AU3_TNUMBER,
+    AU3_TOBJECT,
+
+    AU3_TSTRING,
+
 } au3ValueType;
 
-typedef double au3Value;
+typedef struct {
+    au3ValueType type;
+    union {
+        bool boolean : 1;
+        int64_t integer;
+        double number;
+        au3Object *object;
+    };
+} au3Value;
 
 typedef struct {
     int count;
