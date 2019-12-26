@@ -22,10 +22,17 @@ static int constantInstruction(const char *name, au3Chunk *chunk, int offset)
     return offset + 2;
 }
 
-static int simpleInstruction(const char* name, int offset)
+static int simpleInstruction(const char *name, int offset)
 {
     printf("%s\n", name);
     return offset + 1;
+}
+
+static int byteInstruction(const char *name, au3Chunk *chunk, int offset)
+{
+    uint8_t slot = chunk->code[offset + 1];
+    printf("%-16s %4d\n", name, slot);
+    return offset + 2;
 }
 
 int au3_disassembleInstruction(au3Chunk *chunk, int offset)
@@ -76,6 +83,11 @@ int au3_disassembleInstruction(au3Chunk *chunk, int offset)
             return constantInstruction("OP_GLD", chunk, offset);
         case OP_GST:
             return constantInstruction("OP_GST", chunk, offset);
+
+        case OP_LD:
+            return byteInstruction("OP_LD", chunk, offset);
+        case OP_ST:
+            return byteInstruction("OP_ST", chunk, offset);
 
         default:
             printf("Unknown opcode %d\n", instruction);
