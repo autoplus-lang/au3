@@ -36,6 +36,7 @@ typedef struct {
     const char *start;
     int length;
     int line;
+    int column;
 } au3Token;
 
 void au3_initLexer(const char *source);

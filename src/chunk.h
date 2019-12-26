@@ -15,6 +15,7 @@ typedef struct {
     int capacity;
     uint8_t *code;
     int *lines;
+    int *columns;
     au3ValueArray constants;
 } au3Chunk;
 
@@ -22,7 +23,7 @@ typedef struct {
 
 void au3_initChunk(au3Chunk *chunk);
 void au3_freeChunk(au3Chunk *chunk);
-void au3_writeChunk(au3Chunk *chunk, uint8_t code, int line);
+void au3_writeChunk(au3Chunk *chunk, uint8_t code, int line, int column);
 int au3_addConstant(au3Chunk *chunk, au3Value value);
 
 #endif

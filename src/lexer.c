@@ -7,6 +7,7 @@ typedef struct {
     const char *start;
     const char *current;
     int line;
+    int position;
 } Lexer;
 
 static Lexer lexer;
@@ -16,6 +17,7 @@ void au3_initLexer(const char *source)
     lexer.start = source;
     lexer.current = source;
     lexer.line = 1;
+    lexer.position = 1;
 }
 
 static bool isAlpha(char c)
@@ -37,9 +39,21 @@ static bool isAtEnd()
     return *lexer.current == '\0';
 }
 
+static void newLine()
+{
+    lexer.line++;
+    lexer.position = 0;
+}
+
+static void tabIndent()
+{
+    lexer.position += (4 - 1);
+}
+
 static char advance()
 {
     lexer.current++;
+    lexer.position++;
     return lexer.current[-1];
 }
 
@@ -60,6 +74,7 @@ static bool match(char expected)
     if (*lexer.current != expected) return false;
 
     lexer.current++;
+    lexer.position++;
     return true;
 }
 
@@ -70,6 +85,7 @@ static au3Token makeToken(au3TokenType type)
     token.start = lexer.start;
     token.length = (int)(lexer.current - lexer.start);
     token.line = lexer.line;
+    token.column = lexer.position - token.length;
 
     return token;
 }
@@ -81,6 +97,7 @@ static au3Token errorToken(const char *message)
     token.start = message;
     token.length = (int)strlen(message);
     token.line = lexer.line;
+    token.column = lexer.position - 1;
 
     return token;
 }
@@ -90,14 +107,15 @@ static void skipWhitespace()
     for (;;) {
         char c = peek();
         switch (c) {
+            case '\t':
+                tabIndent();
             case ' ':
             case '\r':
-            case '\t':
                 advance();
                 break;
 
             case '\n':
-                lexer.line++;
+                newLine();
                 advance();
                 break;
 
@@ -188,7 +206,7 @@ static au3Token number()
 static au3Token string(char begin)
 {
     while (peek() != begin && !isAtEnd()) {
-        if (peek() == '\n') lexer.line++;
+        if (peek() == '\n') newLine();
         advance();
     }
 
