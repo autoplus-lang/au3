@@ -47,6 +47,9 @@ typedef enum {
     OP_LD,
     OP_ST,
 
+    OP_JMP,
+    OP_JMPF,
+
 } au3Opcode;
 
 typedef struct {

@@ -88,6 +88,7 @@ static void concatenate(au3VM *vm)
 static au3Status execute(au3VM *vm)
 {
 #define READ_BYTE()     (*vm->ip++)
+#define READ_SHORT()    (vm->ip += 2, (uint16_t)((vm->ip[-2] << 8) | vm->ip[-1]))
 #define READ_LAST()     (vm->ip[-1])
 #define READ_CONST()    (vm->chunk->constants.values[READ_BYTE()])
 #define READ_STRING()   AU3_AS_STRING(READ_CONST())
@@ -235,6 +236,17 @@ static au3Status execute(au3VM *vm)
         CASE_CODE(ST) {
             uint8_t slot = READ_BYTE();
             vm->stack[slot] = PEEK(vm, 0);
+            NEXT;
+        }
+
+        CASE_CODE(JMP) {
+            uint16_t offset = READ_SHORT();
+            vm->ip += offset;
+            NEXT;
+        }
+        CASE_CODE(JMPF) {
+            uint16_t offset = READ_SHORT();
+            if (AU3_IS_FALSEY(PEEK(vm, 0))) vm->ip += offset;
             NEXT;
         }
 
