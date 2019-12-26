@@ -47,6 +47,7 @@ typedef enum {
     TOKEN_PUTS,
     TOKEN_RETURN,
     TOKEN_SUPER,
+    TOKEN_THEN,
     TOKEN_THIS,
     TOKEN_TRUE,
     TOKEN_VAR,
