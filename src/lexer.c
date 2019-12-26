@@ -154,18 +154,27 @@ static au3TokenType checkKeyword(int start, int length, const char *rest, au3Tok
 
 static au3TokenType identifierType()
 {
-    switch (lexer.start[0]) {
+#define CHAR_AT     lexer.start
+#define LENGTH      (lexer.current - lexer.start)
+
+    switch (CHAR_AT[0]) {
         case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);
         case 'c': return checkKeyword(1, 4, "lass", TOKEN_CLASS);
         case 'e': 
-            if (lexer.current - lexer.start > 1)
-                switch (lexer.start[1]) {
-                    case 'l': return checkKeyword(2, 2, "se", TOKEN_ELSE);
-                    case 'n': return checkKeyword(2, 1, "d", TOKEN_END);
+            if (LENGTH > 1)
+                switch (CHAR_AT[1]) {
+                    case 'l':
+                        if (LENGTH >= 6)
+                              return checkKeyword(2, 4, "seif", TOKEN_ELSEIF);
+                        else  return checkKeyword(2, 2, "se", TOKEN_ELSE);
+                    case 'n':
+                        if (LENGTH >= 5)
+                              return checkKeyword(2, 3, "dif", TOKEN_ENDIF);
+                        else  return checkKeyword(2, 1, "d", TOKEN_END);
                 }
             break;
         case 'f':
-            if (lexer.current - lexer.start > 1)
+            if (LENGTH > 1)
                 switch (lexer.start[1]) {
                     case 'a': return checkKeyword(2, 3, "lse", TOKEN_FALSE);
                     case 'o': return checkKeyword(2, 1, "r", TOKEN_FOR);
@@ -179,11 +188,11 @@ static au3TokenType identifierType()
         case 'r': return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
         case 's': return checkKeyword(1, 4, "uper", TOKEN_SUPER);
         case 't':
-            if (lexer.current - lexer.start > 1)
-                switch (lexer.start[1]) {
+            if (LENGTH > 1)
+                switch (CHAR_AT[1]) {
                     case 'h':
-                        if (lexer.current - lexer.start > 2)
-                            switch (lexer.start[2]) {
+                        if (LENGTH > 2)
+                            switch (CHAR_AT[2]) {
                                 case 'e': return checkKeyword(3, 1, "n", TOKEN_THEN);
                                 case 'i': return checkKeyword(3, 1, "s", TOKEN_THIS);
                             }
