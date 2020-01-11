@@ -262,12 +262,13 @@ tok_t lexer_scan(lexer_t *L)
     if (isDigit(c)) return number(L);
 
     switch (c) {
-        case '(': return makeToken(L, TOKEN_LEFT_PAREN);
-        case ')': return makeToken(L, TOKEN_RIGHT_PAREN);
-        case '[': return makeToken(L, TOKEN_LEFT_BRACKET);
-        case ']': return makeToken(L, TOKEN_RIGHT_BRACKET);
-        case '{': return makeToken(L, TOKEN_LEFT_BRACE);
-        case '}': return makeToken(L, TOKEN_RIGHT_BRACE);
+        case '(': return makeToken(L, TOKEN_LPAREN);
+        case ')': return makeToken(L, TOKEN_RPAREN);
+        case '[': return makeToken(L, TOKEN_LBRACKET);
+        case ']': return makeToken(L, TOKEN_RBRACKET);
+        case '{': return makeToken(L, TOKEN_LBRACE);
+        case '}': return makeToken(L, TOKEN_RBRACE);
+
         case ';': return makeToken(L, TOKEN_SEMICOLON);
         case ',': return makeToken(L, TOKEN_COMMA);
         case '.': return makeToken(L, TOKEN_DOT);

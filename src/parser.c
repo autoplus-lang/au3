@@ -373,7 +373,7 @@ static void defineVariable(parser_t *parser, uint8_t global)
 static uint8_t argumentList(parser_t *parser)
 {
     uint8_t argCount = 0;
-    if (!check(parser, TOKEN_RIGHT_PAREN)) {
+    if (!check(parser, TOKEN_RPAREN)) {
         do {
             expression(parser);
             argCount++;
@@ -383,7 +383,7 @@ static uint8_t argumentList(parser_t *parser)
         } while (match(parser, TOKEN_COMMA));
     }
 
-    consume(parser, TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
+    consume(parser, TOKEN_RPAREN, "Expect ')' after arguments.");
     return argCount;
 }
 
@@ -448,7 +448,7 @@ static void dot(parser_t *parser, bool canAssign)
 static void index_(parser_t *parser, bool canAssign)
 {
     expression(parser);
-    consume(parser, TOKEN_RIGHT_BRACKET, "Expected closing ']'");
+    consume(parser, TOKEN_RBRACKET, "Expected closing ']'");
 
     if (canAssign && match(parser, TOKEN_EQUAL)) {
         expression(parser);
@@ -476,7 +476,7 @@ static void literal(parser_t *parser, bool canAssign)
 static void grouping(parser_t *parser, bool canAssign)
 {
     expression(parser);
-    consume(parser, TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+    consume(parser, TOKEN_RPAREN, "Expect ')' after expression.");
 }
 
 static void number(parser_t *parser, bool canAssign)
@@ -497,14 +497,14 @@ static void map(parser_t *parser, bool canAssign)
 {
     uint8_t count = 0;
 
-    if (!check(parser, TOKEN_RIGHT_BRACKET)) {
+    if (!check(parser, TOKEN_RBRACKET)) {
         do {
             expression(parser);
             count++;
         } while (match(parser, TOKEN_COMMA));
     }
 
-    consume(parser, TOKEN_RIGHT_BRACKET, "Expected closing ']'.");
+    consume(parser, TOKEN_RBRACKET, "Expected closing ']'.");
     emitBytes(parser, OP_MAP, count);
 }
 
@@ -568,12 +568,12 @@ static void unary(parser_t *parser, bool canAssign)
 }
 
 static rule_t rules[MAX_TOKENS] = {
-    [TOKEN_LEFT_PAREN]      = { grouping, call,    PREC_CALL },
-    [TOKEN_RIGHT_PAREN]     = { NULL,     NULL,    PREC_NONE },
-    [TOKEN_LEFT_BRACKET]    = { map,      index_,  PREC_CALL },
-    [TOKEN_RIGHT_BRACKET]   = { NULL,     NULL,    PREC_NONE },
-    [TOKEN_LEFT_BRACE]      = { NULL,     NULL,    PREC_NONE },
-    [TOKEN_RIGHT_BRACE]     = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_LPAREN]          = { grouping, call,    PREC_CALL },
+    [TOKEN_RPAREN]          = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_LBRACKET]        = { map,      index_,  PREC_CALL },
+    [TOKEN_RBRACKET]        = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_LBRACE]          = { NULL,     NULL,    PREC_NONE },
+    [TOKEN_RBRACE]          = { NULL,     NULL,    PREC_NONE },
 
     [TOKEN_COMMA]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_DOT]             = { NULL,     dot,     PREC_CALL },
@@ -633,7 +633,7 @@ static void parsePrecedence(parser_t *parser, prec_t precedence)
 
     while (precedence <= getRule(parser->current.type)->precedence) {
         if (parser->current.line > parser->previous.line) break;
-        if (check(parser, TOKEN_LEFT_PAREN)) parser->hadCall = true;
+        if (check(parser, TOKEN_LPAREN)) parser->hadCall = true;
         advance(parser);
         parsefn_t infixRule = getRule(parser->previous.type)->infix;
         infixRule(parser, canAssign);
@@ -656,11 +656,11 @@ static void expression(parser_t *parser)
 
 static void block(parser_t *parser)
 {
-    while (!check(parser, TOKEN_RIGHT_BRACE) && !check(parser, TOKEN_EOF)) {
+    while (!check(parser, TOKEN_RBRACE) && !check(parser, TOKEN_EOF)) {
         declaration(parser);
     }
 
-    consume(parser, TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+    consume(parser, TOKEN_RBRACE, "Expect '}' after block.");
 }
 
 static void function(parser_t *parser, funtype_t type)
@@ -670,8 +670,8 @@ static void function(parser_t *parser, funtype_t type)
     beginScope(parser);
 
     // Compile the parameter list.                                
-    consume(parser, TOKEN_LEFT_PAREN, "Expect '(' after function name.");
-    if (!check(parser, TOKEN_RIGHT_PAREN)) {
+    consume(parser, TOKEN_LPAREN, "Expect '(' after function name.");
+    if (!check(parser, TOKEN_RPAREN)) {
         do {
             int arity = ++parser->compiler->function->arity;
             if (arity > 32) {
@@ -681,10 +681,10 @@ static void function(parser_t *parser, funtype_t type)
             defineVariable(parser, paramConstant);
         } while (match(parser, TOKEN_COMMA));
     }
-    consume(parser, TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+    consume(parser, TOKEN_RPAREN, "Expect ')' after parameters.");
 
     // The body.                                                  
-    consume(parser, TOKEN_LEFT_BRACE, "Expect '{' before function body.");
+    consume(parser, TOKEN_LBRACE, "Expect '{' before function body.");
     block(parser);
 
     // Create the function object.                                
@@ -735,9 +735,9 @@ static void expressionStatement(parser_t *parser)
 
 static void ifStatement(parser_t *parser)
 {
-    consume(parser, TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+    consume(parser, TOKEN_LPAREN, "Expect '(' after 'if'.");
     expression(parser);
-    consume(parser, TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+    consume(parser, TOKEN_RPAREN, "Expect ')' after condition.");
 
     int thenJump = emitJump(parser, OP_JMPF);
     emitByte(parser, OP_POP);
@@ -775,7 +775,7 @@ static void returnStatement(parser_t *parser)
     }
 
     if (match(parser, TOKEN_SEMICOLON) ||
-        check(parser, TOKEN_RIGHT_BRACE)) {
+        check(parser, TOKEN_RBRACE)) {
         emitReturn(parser);
     }
     else {
@@ -834,7 +834,7 @@ static void statement(parser_t *parser)
     else if (match(parser, TOKEN_RETURN)) {
         returnStatement(parser);
     }
-    else if (match(parser, TOKEN_LEFT_BRACE)) {
+    else if (match(parser, TOKEN_LBRACE)) {
         beginScope(parser);
         block(parser);
         endScope(parser);
