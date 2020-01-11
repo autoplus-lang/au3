@@ -774,10 +774,12 @@ static void returnStatement(parser_t *parser)
 {
     if (parser->compiler->type == TYPE_SCRIPT) {
         error(parser, "Cannot return from top-level code.");
+        return;
     }
 
     if (match(parser, TOKEN_SEMICOLON) ||
-        check(parser, TOKEN_RBRACE)) {
+        check(parser, TOKEN_RBRACE) ||
+        parser->current.line > parser->previous.line ) {
         emitReturn(parser);
     }
     else {
