@@ -91,16 +91,14 @@ static void errorAt(parser_t *parser, tok_t *token, const char *message)
         fprintf(stderr, " at '%.*s'", token->length, token->start);
     }
 
-    if (token->type) {
-        fprintf(stderr, ": %s\n", message);
-        fprintf(stderr, "  | %.*s\n", length, line);
-        fprintf(stderr, "    %*s", length - token->length, "");
-        for (int i = 0; i < token->length; i++) fputc('^', stderr);      
-    }
+    fprintf(stderr, ": %s\n", message);
+    fprintf(stderr, "  | %.*s\n", length, line);
+    fprintf(stderr, "    %*s", length - token->length, "");
+    for (int i = 0; i < token->length; i++) fputc('^', stderr);
 
     fprintf(stderr, "\n");
     fflush(stderr);
-    parser->hadError = true; 
+    parser->hadError = true;
 }
 
 static void error(parser_t *parser, const char *message)
@@ -714,8 +712,11 @@ static void function(parser_t *parser, funtype_t type)
     consume(parser, TOKEN_RPAREN, "Expect ')' after parameters.");
 
     // The body.                                                  
-    consume(parser, TOKEN_LBRACE, "Expect '{' before function body.");
-    block(parser);
+    while (!check(parser, TOKEN_END) && !check(parser, TOKEN_ENDFUNC)
+        && !check(parser, TOKEN_EOF)) {
+        declaration(parser);
+    }
+    consumes(parser, TOKEN_END, TOKEN_ENDFUNC, "Expect 'End' or 'EndFunc' after function body.");
 
     // Create the function object.                                
     fun_t *function = endCompiler(parser);
