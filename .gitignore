@@ -52,7 +52,7 @@ Mkfile.old
 dkms.conf
 
 # My local project
+*.sln
 .vs/
 bin/
-build/
-vs/
+pro/
