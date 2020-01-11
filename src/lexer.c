@@ -333,6 +333,24 @@ static tok_t string(lexer_t *L, char start)
     return makeToken(L, TOKEN_STRING);
 }
 
+static tok_t macro(lexer_t *L)
+{
+    while (isAlpha(peek(L)) || isDigit(peek(L))) {
+        advance(L);
+    }
+
+    return makeToken(L, TOKEN_MACRO);
+}
+
+static tok_t preprocessor(lexer_t *L)
+{
+    while (isAlpha(peek(L)) || isDigit(peek(L))) {
+        advance(L);
+    }
+
+    return makeToken(L, TOKEN_PREPROCESSOR);
+}
+
 tok_t lexer_scan(lexer_t *L)
 {
     skipWhitespace(L);
@@ -370,7 +388,12 @@ tok_t lexer_scan(lexer_t *L)
             return makeToken(L, match(L, '=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
 
         case '\'':
-        case '\"': return string(L, c);
+        case '\"':
+            return string(L, c);
+        case '@':
+            return macro(L);
+        case '#':
+            return preprocessor(L);
     }
 
     return errorToken(L, "Unexpected character.");
