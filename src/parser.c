@@ -749,16 +749,19 @@ static void varDeclaration(parser_t *parser)
 
 static void globalDeclaration(parser_t *parser)
 {
-    uint8_t global = parseVariable(parser, "Expect variable name.");
+    do {
+        uint8_t global = parseVariable(parser, "Expect variable name.");
 
-    if (match(parser, TOKEN_EQUAL)) {
-        expression(parser);
-    }
-    else {
-        emitByte(parser, OP_NIL);
-    }
+        if (match(parser, TOKEN_EQUAL)) {
+            expression(parser);
+        }
+        else {
+            emitByte(parser, OP_NIL);
+        }
 
-    emitSmart(parser, OP_DEF, global);
+        emitSmart(parser, OP_DEF, global);
+
+    } while (match(parser, TOKEN_COMMA));
 }
 
 static void expressionStatement(parser_t *parser)
