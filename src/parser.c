@@ -747,6 +747,20 @@ static void varDeclaration(parser_t *parser)
     defineVariable(parser, global);
 }
 
+static void globalDeclaration(parser_t *parser)
+{
+    uint8_t global = parseVariable(parser, "Expect variable name.");
+
+    if (match(parser, TOKEN_EQUAL)) {
+        expression(parser);
+    }
+    else {
+        emitByte(parser, OP_NIL);
+    }
+
+    emitSmart(parser, OP_DEF, global);
+}
+
 static void expressionStatement(parser_t *parser)
 {
     parser->hadCall = false;
@@ -868,6 +882,9 @@ static void declaration(parser_t *parser)
     }
     else if (match(parser, TOKEN_VAR)) {
         varDeclaration(parser);
+    }
+    else if (match(parser, TOKEN_GLOBAL)) {
+        globalDeclaration(parser);
     }
     else {
         statement(parser);
