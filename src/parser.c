@@ -596,7 +596,6 @@ static rule_t rules[MAX_TOKENS] = {
 
     [TOKEN_MINUS]           = { unary,    binary,  PREC_TERM },
     [TOKEN_PLUS]            = { NULL,     binary,  PREC_TERM },
-    [TOKEN_SEMICOLON]       = { NULL,     NULL,    PREC_NONE },
     [TOKEN_SLASH]           = { NULL,     binary,  PREC_FACTOR },
     [TOKEN_STAR]            = { NULL,     binary,  PREC_FACTOR },
 
@@ -760,8 +759,6 @@ static void expressionStatement(parser_t *parser)
         error(parser, "Unexpected expression syntax.");
         return;
     }
-
-    match(parser, TOKEN_SEMICOLON);
 }
 
 static void ifStatement(parser_t *parser)
@@ -807,8 +804,9 @@ static void returnStatement(parser_t *parser)
         return;
     }
 
-    if (match(parser, TOKEN_SEMICOLON) ||
-        check(parser, TOKEN_RBRACE) ||
+    if (check(parser, TOKEN_RBRACE) ||
+        check(parser, TOKEN_END) ||
+        check(parser, TOKEN_ENDFUNC) ||
         parser->current.line > parser->previous.line ) {
         emitReturn(parser);
     }
@@ -823,7 +821,7 @@ static void synchronize(parser_t *parser)
     parser->panicMode = false;
 
     while (parser->current.type != TOKEN_EOF) {
-        if (parser->previous.type == TOKEN_SEMICOLON) return;
+        //if (parser->previous.type == TOKEN_SEMICOLON) return;
 
         switch (parser->current.type) {
             case TOKEN_CLASS:
@@ -884,9 +882,6 @@ static void statement(parser_t *parser)
             declaration(parser);
         }
         endScope(parser);
-    }
-    else if (match(parser, TOKEN_SEMICOLON)) {
-        // Do nothing.
     }
     else {
         expressionStatement(parser);

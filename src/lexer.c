@@ -353,7 +353,6 @@ tok_t lexer_scan(lexer_t *L)
         case '{': return makeToken(L, TOKEN_LBRACE);
         case '}': return makeToken(L, TOKEN_RBRACE);
 
-        case ';': return makeToken(L, TOKEN_SEMICOLON);
         case ',': return makeToken(L, TOKEN_COMMA);
         case '.': return makeToken(L, TOKEN_DOT);
         case '-': return makeToken(L, TOKEN_MINUS);
