@@ -465,9 +465,9 @@ static void literal(parser_t *parser, bool canAssign)
 {
     switch (parser->previous.type) {
         case TOKEN_FALSE:   emitByte(parser, OP_FALSE); break;
-        case TOKEN_NIL:     emitByte(parser, OP_NIL); break;
+        case TOKEN_NULL:    emitByte(parser, OP_NIL); break;
         case TOKEN_TRUE:    emitByte(parser, OP_TRUE); break;
-        case TOKEN_FUN:     emitBytes(parser, OP_LD, 0); break;
+        case TOKEN_FUNC:    emitBytes(parser, OP_LD, 0); break;
         default:
             return; // Unreachable.                   
     }
@@ -560,6 +560,7 @@ static void unary(parser_t *parser, bool canAssign)
 
     // Emit the operator instruction.              
     switch (operatorType) {
+        case TOKEN_NOT:
         case TOKEN_BANG:    emitByte(parser, OP_NOT); break;
         case TOKEN_MINUS:   emitByte(parser, OP_NEG); break;
         default:
@@ -602,9 +603,10 @@ static rule_t rules[MAX_TOKENS] = {
     [TOKEN_ELSE]            = { NULL,     NULL,    PREC_NONE },
     [TOKEN_FALSE]           = { literal,  NULL,    PREC_NONE },
     [TOKEN_FOR]             = { NULL,     NULL,    PREC_NONE },
-    [TOKEN_FUN]             = { literal,  NULL,    PREC_NONE },
+    [TOKEN_FUNC]            = { literal,  NULL,    PREC_NONE },
     [TOKEN_IF]              = { NULL,     NULL,    PREC_NONE },
-    [TOKEN_NIL]             = { literal,  NULL,    PREC_NONE },
+    [TOKEN_NOT]             = { unary,    NULL,    PREC_NONE },
+    [TOKEN_NULL]            = { literal,  NULL,    PREC_NONE },
     [TOKEN_OR]              = { NULL,     or_,     PREC_OR },
     [TOKEN_PRINT]           = { NULL,     NULL,    PREC_NONE },
     [TOKEN_RETURN]          = { NULL,     NULL,    PREC_NONE },
@@ -793,7 +795,7 @@ static void synchronize(parser_t *parser)
 
         switch (parser->current.type) {
             case TOKEN_CLASS:
-            case TOKEN_FUN:
+            case TOKEN_FUNC:
             case TOKEN_VAR:
             case TOKEN_FOR:
             case TOKEN_IF:
@@ -810,7 +812,7 @@ static void synchronize(parser_t *parser)
 
 static void declaration(parser_t *parser)
 {
-    if (match(parser, TOKEN_FUN)) {
+    if (match(parser, TOKEN_FUNC)) {
         funDeclaration(parser);
     }
     else if (match(parser, TOKEN_VAR)) {
