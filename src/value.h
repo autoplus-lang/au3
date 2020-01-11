@@ -9,12 +9,13 @@ typedef struct _upv upv_t;
 typedef struct _map map_t;
 
 typedef enum {
-    VT_NIL,
+    VT_NULL_,
     VT_BOOL_,
     VT_NUM,
     VT_OBJ,
     VT_CFN,
     VT_PTR_
+#define VT_NULL VT_NULL_
 #define VT_BOOL VT_BOOL_
 #define VT_PTR  VT_PTR_
 } vtype_t;
@@ -27,22 +28,22 @@ typedef enum {
 } otype_t;
 
 enum {
-    VT_NIL_NIL      = CMB_BYTES(VT_NIL, VT_NIL),
-    VT_NIL_BOOL     = CMB_BYTES(VT_NIL, VT_BOOL),
-    VT_NIL_NUM      = CMB_BYTES(VT_NIL, VT_NUM),
-    VT_NIL_OBJ      = CMB_BYTES(VT_NIL, VT_OBJ),
+    VT_NULL_NULL    = CMB_BYTES(VT_NULL, VT_NULL),
+    VT_NULL_BOOL    = CMB_BYTES(VT_NULL, VT_BOOL),
+    VT_NULL_NUM     = CMB_BYTES(VT_NULL, VT_NUM),
+    VT_NULL_OBJ     = CMB_BYTES(VT_NULL, VT_OBJ),
 
-    VT_BOOL_NIL     = CMB_BYTES(VT_BOOL, VT_NIL),
+    VT_BOOL_NIL     = CMB_BYTES(VT_BOOL, VT_NULL),
     VT_BOOL_BOOL    = CMB_BYTES(VT_BOOL, VT_BOOL),
     VT_BOOL_NUM     = CMB_BYTES(VT_BOOL, VT_NUM),
     VT_BOOL_OBJ     = CMB_BYTES(VT_BOOL, VT_OBJ),
 
-    VT_NUM_NIL      = CMB_BYTES(VT_NUM, VT_NIL),
+    VT_NUM_NIL      = CMB_BYTES(VT_NUM, VT_NULL),
     VT_NUM_BOOL     = CMB_BYTES(VT_NUM, VT_BOOL),
     VT_NUM_NUM      = CMB_BYTES(VT_NUM, VT_NUM),
     VT_NUM_OBJ      = CMB_BYTES(VT_NUM, VT_OBJ),
 
-    VT_OBJ_NIL      = CMB_BYTES(VT_OBJ, VT_NIL),
+    VT_OBJ_NIL      = CMB_BYTES(VT_OBJ, VT_NULL),
     VT_OBJ_BOOL     = CMB_BYTES(VT_OBJ, VT_BOOL),
     VT_OBJ_NUM      = CMB_BYTES(VT_OBJ, VT_NUM),
     VT_OBJ_OBJ      = CMB_BYTES(VT_OBJ, VT_OBJ),
@@ -59,7 +60,7 @@ struct _val {
         cfn_t CFn;
         obj_t *Obj;
         void *Ptr;
-        uint64_t raw;
+        uint64_t Raw;
     };
 };
 
@@ -69,7 +70,7 @@ typedef struct {
     val_t *values;
 } arr_t;
 
-static const val_t VAL_NIL = { .type = VT_NIL };
+static const val_t VAL_NULL = { .type = VT_NULL, .Raw = 0 };
 static const val_t VAL_TRUE = { .type = VT_BOOL, .Bool = true };
 static const val_t VAL_FALSE = { .type = VT_BOOL, .Bool = false };
 static const val_t VAL_NULLPTR = { .type = VT_PTR, .Ptr = NULL };
@@ -86,7 +87,7 @@ static const val_t VAL_NULLPTR = { .type = VT_PTR, .Ptr = NULL };
 #define AS_CFN(v)       ((v).CFn)
 #define AS_PTR(v)       ((v).Ptr)
 
-#define IS_NIL(v)       (AS_TYPE(v) == VT_NIL)
+#define IS_NULL(v)      (AS_TYPE(v) == VT_NULL)
 #define IS_BOOL(v)      (AS_TYPE(v) == VT_BOOL)
 #define IS_NUM(v)       (AS_TYPE(v) == VT_NUM)
 #define IS_OBJ(v)       (AS_TYPE(v) == VT_OBJ)
@@ -94,8 +95,10 @@ static const val_t VAL_NULLPTR = { .type = VT_PTR, .Ptr = NULL };
 #define IS_PTR(v)       (AS_TYPE(v) == VT_PTR)
 
 #define AS_INT(v)       ((int)AS_NUM(v))
+#define AS_INT64(v)     ((int64_t)AS_NUM(v))
+#define AS_RAW(v)       ((v).Raw)
 #define AS_TYPE(v)      ((v).type)
-#define AS_RAW(v)       ((v).raw)
+
 #define IS_FALSEY(v)    (!(bool)AS_RAW(v))
 
 void val_print(val_t value);

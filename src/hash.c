@@ -28,7 +28,7 @@ static index_t *hash_find(index_t *indexes, int capacity, uint64_t key)
         index_t *index = &indexes[i];
 
         if (index->key == UNUSED_INDEX) {
-            if (IS_NIL(index->value)) {
+            if (IS_NULL(index->value)) {
                 // Empty entry.                              
                 return tombstone != NULL ? tombstone : index;
             }
@@ -52,7 +52,7 @@ static void hash_resize(hash_t *hash, int capacity)
 
     for (int i = 0; i < capacity; i++) {
         indexes[i].key = UNUSED_INDEX;
-        indexes[i].value = VAL_NIL;
+        indexes[i].value = VAL_NULL;
     }
  
     hash->count = 0;
@@ -92,7 +92,7 @@ bool hash_set(hash_t *hash, uint64_t key, val_t value)
     index_t *index = hash_find(hash->indexes, hash->capacity, key);
 
     bool isNewKey = (index->key == UNUSED_INDEX);
-    if (isNewKey && IS_NIL(index->value)) hash->count++;
+    if (isNewKey && IS_NULL(index->value)) hash->count++;
 
     index->key = key;
     index->value = value;

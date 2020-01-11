@@ -27,7 +27,7 @@ static ent_t *findEntry(ent_t *entries, int capacity, str_t *key)
         ent_t *entry = &entries[index];
 
         if (entry->key == NULL) {
-            if (IS_NIL(entry->value)) {
+            if (IS_NULL(entry->value)) {
                 // Empty entry.                              
                 return tombstone != NULL ? tombstone : entry;
             }
@@ -62,7 +62,7 @@ static void adjustCapacity(tab_t *table, int capacity)
 
     for (int i = 0; i < capacity; i++) {
         entries[i].key = NULL;
-        entries[i].value = VAL_NIL;
+        entries[i].value = VAL_NULL;
     }
 
     table->count = 0;
@@ -91,7 +91,7 @@ bool tab_set(tab_t *table, str_t *key, val_t value)
     ent_t *entry = findEntry(table->entries, table->capacity, key);
 
     bool isNewKey = entry->key == NULL;
-    if (isNewKey && IS_NIL(entry->value)) table->count++;
+    if (isNewKey && IS_NULL(entry->value)) table->count++;
 
     entry->key = key;
     entry->value = value;
@@ -135,7 +135,7 @@ str_t *tab_findstr(tab_t *table, const char *chars, int length, uint32_t hash)
 
         if (key == NULL) {
             // Stop if we find an empty non-tombstone entry.                 
-            if (IS_NIL(entry->value)) return NULL;
+            if (IS_NULL(entry->value)) return NULL;
         }
         else if (key->length == length && key->hash == hash) {
             // We found it.                                                  

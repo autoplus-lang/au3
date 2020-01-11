@@ -80,7 +80,7 @@ static val_t math_sqrt(vm_t *vm, int argc, val_t *args)
 
 void load_libmath(vm_t *vm)
 {
-    map_t *math = map_new(vm, 0, 0);
+    map_t *math = map_new(vm);
 
     map_set(vm, math, "abs", VAL_CFN(math_abs));
     map_set(vm, math, "ceil", VAL_CFN(math_ceil));

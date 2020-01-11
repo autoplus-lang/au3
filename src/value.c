@@ -8,8 +8,8 @@ const char *val_typeof(val_t value)
 {
     switch (AS_TYPE(value)) {
         default:
-        case VT_NIL:
-            return "nil";
+        case VT_NULL:
+            return "null";
         case VT_BOOL:
             return "bool";
         case VT_NUM:
@@ -26,8 +26,8 @@ const char *val_typeof(val_t value)
 void val_print(val_t value)
 {
     switch (AS_TYPE(value)) {
-        case VT_NIL:
-            printf("nil");
+        case VT_NULL:
+            printf("null");
             break;
         case VT_BOOL:
             printf(AS_BOOL(value) ? "true" : "false");
@@ -53,7 +53,7 @@ bool val_equal(val_t a, val_t b)
     vtype_t tb = AS_TYPE(b);
 
     switch (CMB_BYTES(ta, tb)) {
-        case VT_NIL_NIL:
+        case VT_NULL_NULL:
             return true;
         case VT_BOOL_BOOL:
             return AS_BOOL(a) == AS_BOOL(b);

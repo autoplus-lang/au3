@@ -46,7 +46,7 @@ static val_t thread_sleep(vm_t *vm, int argc, val_t *args)
     usleep(ms * 1000);
 #endif
 
-    return VAL_NIL;
+    return VAL_NULL;
 }
 
 static val_t thread_create(vm_t *vm, int argc, val_t *args)
@@ -74,7 +74,7 @@ static val_t thread_exit(vm_t *vm, int argc, val_t *args)
 #else
 #endif
 
-    return VAL_NIL;
+    return VAL_NULL;
 }
 
 static val_t thread_start(vm_t *vm, int argc, val_t *args)
@@ -94,7 +94,7 @@ static val_t thread_start(vm_t *vm, int argc, val_t *args)
 #endif
     }
 
-    return VAL_NIL;
+    return VAL_NULL;
 }
 
 static val_t thread_join(vm_t *vm, int argc, val_t *args)
@@ -108,7 +108,7 @@ static val_t thread_join(vm_t *vm, int argc, val_t *args)
 #endif
     }
 
-    return VAL_NIL;
+    return VAL_NULL;
 }
 
 static val_t thread_cancel(vm_t *vm, int argc, val_t *args)
@@ -122,7 +122,7 @@ static val_t thread_cancel(vm_t *vm, int argc, val_t *args)
 #endif
     }
 
-    return VAL_NIL;
+    return VAL_NULL;
 }
 
 static val_t thread_close(vm_t *vm, int argc, val_t *args)
@@ -143,7 +143,7 @@ static val_t thread_close(vm_t *vm, int argc, val_t *args)
 
     free(thread->vm);
     free(thread);
-    return VAL_NIL;
+    return VAL_NULL;
 }
 
 void load_libthread(vm_t *vm)

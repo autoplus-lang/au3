@@ -259,7 +259,7 @@ int vm_execute(vm_t *vm)
         }
 
         CODE(NIL) {
-            PUSH(VAL_NIL);
+            PUSH(VAL_NULL);
             NEXT;
         }
 
@@ -579,7 +579,7 @@ int vm_execute(vm_t *vm)
             if (IS_MAP(PEEK(0))) {
                 map_t *map = AS_MAP(PEEK(0));
                 str_t *name = READ_STR();
-                val_t value = VAL_NIL;
+                val_t value = VAL_NULL;
                 tab_get(&map->table, name, &value);
                 POP();
                 PUSH(value);
@@ -611,7 +611,7 @@ int vm_execute(vm_t *vm)
                 if (IS_NUM(PEEK(0))) {
                     map_t *map = AS_MAP(PEEK(1));
                     uint64_t key = AS_RAW(PEEK(0));
-                    val_t value = VAL_NIL;
+                    val_t value = VAL_NULL;
                     hash_get(&map->hash, key, &value);
 
                     POP();
@@ -621,7 +621,7 @@ int vm_execute(vm_t *vm)
                 else if (IS_STR(PEEK(0))) {
                     map_t *map = AS_MAP(PEEK(1));
                     str_t *key = AS_STR(PEEK(0));
-                    val_t value = VAL_NIL;
+                    val_t value = VAL_NULL;
                     tab_get(&map->table, key, &value);
 
                     POP();

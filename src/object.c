@@ -33,7 +33,7 @@ static str_t *allocStr(vm_t *vm, char *chars, int length, uint32_t hash)
     string->chars = chars;
     string->hash = hash;
 
-    tab_set(vm->strings, string, VAL_NIL);
+    tab_set(vm->strings, string, VAL_NULL);
 
     return string;
 }
