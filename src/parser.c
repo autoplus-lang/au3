@@ -681,14 +681,14 @@ static void block(parser_t *parser)
 
 static void inlineBlock(parser_t *parser)
 {
-    if (check(parser, TOKEN_EOF)) return;
-
-    if (parser->current.line == parser->previous.line) {
+    if (parser->current.line == parser->previous.line &&
+        !check(parser, TOKEN_EOF)) {
         declaration(parser);
         return;
     }
 
-    while (!check(parser, TOKEN_ELSE) && !check(parser, TOKEN_EOF)) {
+    while (!check(parser, TOKEN_ELSE) &&
+        !check(parser, TOKEN_EOF)) {
         declaration(parser);
     }
 }
@@ -765,6 +765,7 @@ static void ifStatement(parser_t *parser)
 {
     expression(parser);
     consume(parser, TOKEN_THEN, "Expect 'Then' after condition.");
+    bool isInline = parser->current.line == parser->previous.line;
 
     int thenJump = emitJump(parser, OP_JMPF);
     emitByte(parser, OP_POP);
@@ -778,7 +779,10 @@ static void ifStatement(parser_t *parser)
     if (match(parser, TOKEN_ELSE)) statement(parser);
     patchJump(parser, elseJump);
 
-    consumes(parser, TOKEN_END, TOKEN_ENDIF, "Expect 'End' or 'EndIf' after block.");
+    if (!isInline) {
+        consumes(parser, TOKEN_END, TOKEN_ENDIF, "Expect 'End' or 'EndIf' after block.");
+        return;
+    }
 }
 
 static void printStatement(parser_t *parser)
