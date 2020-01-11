@@ -129,6 +129,7 @@ typedef enum {
     TOKEN_IF,
     TOKEN_LOCAL,
     TOKEN_NEXT,
+    TOKEN_NOT,
     TOKEN_NULL,
     TOKEN_OR,
     TOKEN_PRINT,
