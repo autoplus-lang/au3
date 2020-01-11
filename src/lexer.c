@@ -177,34 +177,114 @@ static toktype_t identifierType(lexer_t *L)
 #define LENGTH()    (L->current - L->start)
 
     switch (START(0)) {
-        case 'a': return checkKeyword(L, 1, 2, "nd", TOKEN_AND);
-        case 'c': return checkKeyword(L, 1, 4, "lass", TOKEN_CLASS);
-        case 'e': return checkKeyword(L, 1, 3, "lse", TOKEN_ELSE);
+        case 'a':
+            return checkKeyword(L, 1, 2, "nd", TOKEN_AND);
+        case 'c':
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'a': return checkKeyword(L, 2, 2, "se", TOKEN_CASE);
+                case 'l': return checkKeyword(L, 2, 3, "ass", TOKEN_CLASS);
+                case 'o': return checkKeyword(L, 2, 3, "nst", TOKEN_CONST);
+            }
+            break;
+        case 'd':
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'e': return checkKeyword(L, 2, 5, "fault", TOKEN_DEFAULT);
+                case 'i': return checkKeyword(L, 2, 1, "m", TOKEN_DIM);
+                case 'o': return checkKeyword(L, 2, 0, "", TOKEN_DO);
+            }
+            break;
+        case 'e':
+            switch (LENGTH()) {
+                case 3:
+                    return checkKeyword(L, 1, 2, "dn", TOKEN_END);
+                case 4:
+                    return checkKeyword(L, 1, 3, "num", TOKEN_ENUM);
+                case 5:
+                    return checkKeyword(L, 1, 4, "ndif", TOKEN_ENDIF);
+                case 7: 
+                    if (START(3) == 'f')
+                        return checkKeyword(L, 1, 6, "ndfunc", TOKEN_ENDFUNC);
+                    else if (START(3) == 'w')
+                        return checkKeyword(L, 1, 6, "ndwith", TOKEN_ENDWITH);
+                    break;
+                case 9:
+                    if (START(4) == 'e')
+                        return checkKeyword(L, 1, 8, "ndselect", TOKEN_ENDSELECT);
+                    else if (START(4) == 'w')
+                        return checkKeyword(L, 1, 8, "ndswitch", TOKEN_ENDSWITCH);
+                    break;
+            }
+            break;
         case 'f':
-            if (LENGTH() > 1) {
-                switch (START(1)) {
-                    case 'a': return checkKeyword(L, 2, 3, "lse", TOKEN_FALSE);
-                    case 'o': return checkKeyword(L, 2, 1, "r", TOKEN_FOR);
-                    case 'u': return checkKeyword(L, 2, 1, "n", TOKEN_FUN);
-                }
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'a': return checkKeyword(L, 2, 3, "lse", TOKEN_FALSE);
+                case 'o': return checkKeyword(L, 2, 1, "r", TOKEN_FOR);
+                case 'u': return checkKeyword(L, 2, 2, "nc", TOKEN_FUNC);
             }
             break;
-        case 'i': return checkKeyword(L, 1, 1, "f", TOKEN_IF);
-        case 'n': return checkKeyword(L, 1, 2, "il", TOKEN_NIL);
-        case 'o': return checkKeyword(L, 1, 1, "r", TOKEN_OR);
-        case 'p': return checkKeyword(L, 1, 4, "rint", TOKEN_PRINT);
-        case 'r': return checkKeyword(L, 1, 5, "eturn", TOKEN_RETURN);
-        case 's': return checkKeyword(L, 1, 4, "uper", TOKEN_SUPER);
+        case 'g':
+            return checkKeyword(L, 1, 5, "lobal", TOKEN_GLOBAL);
+        case 'i':
+            return checkKeyword(L, 1, 1, "f", TOKEN_IF);
+        case 'l':
+            return checkKeyword(L, 1, 4, "ocal", TOKEN_LOCAL);
+        case 'n':
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'e': return checkKeyword(L, 2, 2, "xt", TOKEN_NEXT);
+                case 'o': return checkKeyword(L, 2, 1, "t", TOKEN_NOT);
+                case 'u': return checkKeyword(L, 2, 2, "ll", TOKEN_NULL);
+            }
+            break;
+        case 'o':
+            return checkKeyword(L, 1, 1, "r", TOKEN_OR);
+        case 'p':
+            return checkKeyword(L, 1, 4, "rint", TOKEN_PRINT);
+        case 'r':
+            if (LENGTH() > 2 && START(1) == 'e') {
+                    switch (START(2)) {
+                        case 't': return checkKeyword(L, 3, 3, "urn", TOKEN_RETURN);
+                        case 'd': return checkKeyword(L, 3, 2, "im", TOKEN_REDIM);
+                    }
+            }
+            break;
+        case 's':
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'e': return checkKeyword(L, 2, 4, "lect", TOKEN_SELECT);
+                case 't':
+                    if (LENGTH() > 2) switch (START(2)) {
+                        case 'a': return checkKeyword(L, 3, 3, "tic", TOKEN_STATIC);
+                        case 'e': return checkKeyword(L, 3, 1, "p", TOKEN_STEP);                     
+                    }
+                    break;
+                case 'u': return checkKeyword(L, 2, 3, "per", TOKEN_SUPER);
+                case 'w': return checkKeyword(L, 2, 4, "itch", TOKEN_SWITCH);
+            }
+            break;
         case 't':
-            if (LENGTH() > 1) {
-                switch (START(1)) {
-                    case 'h': return checkKeyword(L, 2, 2, "is", TOKEN_THIS);
-                    case 'r': return checkKeyword(L, 2, 2, "ue", TOKEN_TRUE);
-                }
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'h':
+                    if (LENGTH() > 2) switch (START(2)) {
+                        case 'e': return checkKeyword(L, 3, 1, "n", TOKEN_THEN);
+                        case 'i': return checkKeyword(L, 3, 1, "s", TOKEN_THIS);
+                    }
+                    break;
+                case 'r': return checkKeyword(L, 2, 2, "ue", TOKEN_TRUE);
+                case 'o': return checkKeyword(L, 2, 2, "", TOKEN_TO);
+            }       
+            break;
+        case 'v':
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'a': return checkKeyword(L, 2, 1, "r", TOKEN_VAR);
+                case 'o': return checkKeyword(L, 2, 6, "latile", TOKEN_VOLATILE);
             }
             break;
-        case 'v': return checkKeyword(L, 1, 2, "ar", TOKEN_VAR);
-        case 'w': return checkKeyword(L, 1, 4, "hile", TOKEN_WHILE);
+        case 'w':
+            if (LENGTH() > 1) switch (START(1)) {
+                case 'e': return checkKeyword(L, 2, 2, "nd", TOKEN_WEND);
+                case 'h': return checkKeyword(L, 2, 3, "ile", TOKEN_WHILE);
+                case 'i': return checkKeyword(L, 2, 2, "th", TOKEN_WITH);
+            }
+            break;
     }
 
     return TOKEN_IDENTIFIER;

@@ -114,6 +114,7 @@ typedef enum {
     TOKEN_DO,
     TOKEN_ELSE,
     TOKEN_ELSEIF,
+    TOKEN_END,
     TOKEN_ENDFUNC,
     TOKEN_ENDIF,
     TOKEN_ENDSELECT,
