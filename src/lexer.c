@@ -198,7 +198,11 @@ static toktype_t identifierType(lexer_t *L)
                 case 3:
                     return checkKeyword(L, 1, 2, "nd", TOKEN_END);
                 case 4:
-                    return checkKeyword(L, 1, 3, "num", TOKEN_ENUM);
+                    if (START(1) == 'l')
+                        return checkKeyword(L, 1, 3, "lse", TOKEN_ELSE);
+                    else if (START(3) == 'n')
+                        return checkKeyword(L, 1, 3, "num", TOKEN_ENUM);
+                    break;
                 case 5:
                     return checkKeyword(L, 1, 4, "ndif", TOKEN_ENDIF);
                 case 7: 
