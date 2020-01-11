@@ -196,7 +196,7 @@ static toktype_t identifierType(lexer_t *L)
         case 'e':
             switch (LENGTH()) {
                 case 3:
-                    return checkKeyword(L, 1, 2, "dn", TOKEN_END);
+                    return checkKeyword(L, 1, 2, "nd", TOKEN_END);
                 case 4:
                     return checkKeyword(L, 1, 3, "num", TOKEN_ENUM);
                 case 5:
