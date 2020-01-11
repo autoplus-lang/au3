@@ -91,12 +91,11 @@ static void errorAt(parser_t *parser, tok_t *token, const char *message)
         fprintf(stderr, " at '%.*s'", token->length, token->start);
     }
 
-    if (token->type != TOKEN_EOF) {
+    if (token->type != TOKEN_ERROR) {
         fprintf(stderr, ": %s\n", message);
         fprintf(stderr, "  | %.*s\n", length, line);
         fprintf(stderr, "    %*s", length - token->length, "");
-        for (int i = 0; i < token->length; i++) fputc('^', stderr);
-        
+        for (int i = 0; i < token->length; i++) fputc('^', stderr);      
     }
 
     fprintf(stderr, "\n");
@@ -134,6 +133,22 @@ static void consume(parser_t *parser, toktype_t type, const char* message)
     }
 
     errorAtCurrent(parser, message);
+}
+
+static void consumes(parser_t *parser, toktype_t type1, toktype_t type2, const char* message)
+{
+    if (parser->current.type == type1 ||
+        parser->current.type == type2) {
+        advance(parser);
+        return;
+    }
+
+    errorAtCurrent(parser, message);
+}
+
+static bool checkPrev(parser_t *parser, toktype_t type)
+{
+    return parser->previous.type == type;
 }
 
 static bool check(parser_t *parser, toktype_t type)
@@ -665,6 +680,20 @@ static void block(parser_t *parser)
     consume(parser, TOKEN_RBRACE, "Expect '}' after block.");
 }
 
+static void inlineBlock(parser_t *parser)
+{
+    if (check(parser, TOKEN_EOF)) return;
+
+    if (parser->current.line == parser->previous.line) {
+        declaration(parser);
+        return;
+    }
+
+    while (!check(parser, TOKEN_ELSE) && !check(parser, TOKEN_EOF)) {
+        declaration(parser);
+    }
+}
+
 static void function(parser_t *parser, funtype_t type)
 {
     compiler_t compiler;
@@ -737,9 +766,8 @@ static void expressionStatement(parser_t *parser)
 
 static void ifStatement(parser_t *parser)
 {
-    consume(parser, TOKEN_LPAREN, "Expect '(' after 'if'.");
     expression(parser);
-    consume(parser, TOKEN_RPAREN, "Expect ')' after condition.");
+    consume(parser, TOKEN_THEN, "Expect 'Then' after condition.");
 
     int thenJump = emitJump(parser, OP_JMPF);
     emitByte(parser, OP_POP);
@@ -752,6 +780,8 @@ static void ifStatement(parser_t *parser)
 
     if (match(parser, TOKEN_ELSE)) statement(parser);
     patchJump(parser, elseJump);
+
+    consumes(parser, TOKEN_END, TOKEN_ENDIF, "Expect 'End' or 'EndIf' after block.");
 }
 
 static void printStatement(parser_t *parser)
@@ -841,6 +871,18 @@ static void statement(parser_t *parser)
     else if (match(parser, TOKEN_LBRACE)) {
         beginScope(parser);
         block(parser);
+        endScope(parser);
+    }
+    else if (checkPrev(parser, TOKEN_THEN)) {
+        beginScope(parser);
+        inlineBlock(parser);
+        endScope(parser);
+    }
+    else if (checkPrev(parser, TOKEN_ELSE)) {
+        beginScope(parser);
+        while (!check(parser, TOKEN_ENDIF) && !check(parser, TOKEN_EOF)) {
+            declaration(parser);
+        }
         endScope(parser);
     }
     else if (match(parser, TOKEN_SEMICOLON)) {
