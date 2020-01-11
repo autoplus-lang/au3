@@ -821,6 +821,22 @@ static void returnStatement(parser_t *parser)
     }
 }
 
+static void exitStatement(parser_t *parser)
+{
+    bool hadParen = check(parser, TOKEN_LPAREN);
+
+    if (parser->current.line == parser->previous.line
+        && !check(parser, TOKEN_RPAREN)) {
+        expression(parser);
+    }
+    else {
+        emitByte(parser, OP_NIL);
+    }
+
+    if (hadParen) consume(parser, TOKEN_RPAREN, "Expected ')' closing.");
+    //emitByte(parser, OP_EXIT);
+}
+
 static void synchronize(parser_t *parser)
 {
     parser->panicMode = false;
@@ -870,6 +886,9 @@ static void statement(parser_t *parser)
     }
     else if (match(parser, TOKEN_RETURN)) {
         returnStatement(parser);
+    }
+    else if (match(parser, TOKEN_EXIT)) {
+        exitStatement(parser);
     }
     else if (match(parser, TOKEN_LBRACE)) {
         beginScope(parser);
